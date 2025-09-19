@@ -1,0 +1,59 @@
+{
+  "hero": {
+    "eyebrow": "CMMS for Healthcare",
+    "title": "Keep your hospital running without downtime",
+    "subtitle": "Manage work orders, preventive maintenance, assets, and inventory—secure and multi-tenant.",
+    "ctaText": "Book Demo",
+    "ctaHref": "/demo",
+    "secondaryCtaText": "Take a 2-min Tour",
+    "secondaryCtaHref": "/tour",
+    "image": "/assets/images/hero-dashboard.png"
+  },
+  "trust": {
+    "headline": "Built by biomedical engineers for biomedical teams",
+    "badges": [
+      { "icon": "shield-lock", "label": "Security" },
+      { "icon": "file-earmark-check", "label": "Audit Trail" },
+      { "icon": "clock", "label": "24/7 Support" }
+    ]
+  },
+  "features": [
+    { "title": "Work Orders", "subtitle": "Create, assign, close jobs in seconds.", "icon": "clipboard-check" },
+    { "title": "Preventive Maintenance", "subtitle": "Put PMs on autopilot and eliminate breakdowns.", "icon": "calendar-check" },
+    { "title": "Assets & Warranty", "subtitle": "Track full lifecycle with history & warranty alerts.", "icon": "hospital" },
+    { "title": "Inventory & Parts", "subtitle": "Stay stocked and cut costs on critical spares.", "icon": "archive" },
+    { "title": "Reports & Dashboards", "subtitle": "Monitor downtime, MTTR, and costs in real time.", "icon": "graph-up" },
+    { "title": "Mobile CMMS App", "subtitle": "Raise requests, capture photos, and close jobs on the go.", "icon": "phone" }
+  ],
+  "crossPlatform": {
+    "title": "Work anywhere — desktop, web, or mobile",
+    "subtitle": "BioMaint runs on Windows desktop, modern browsers, and mobile apps (Flutter) for Android & iOS.",
+    "desktopImage": "/assets/images/dashboard.png",
+    "mobileImage": "/assets/images/mobile.png"
+  },
+  "healthcareEssentials": [
+    { "title": "Audit-Ready Records", "subtitle": "PM logs, calibration certificates, and CAPA notes ready in minutes.", "icon": "file-medical" },
+    { "title": "LIS & Device Integration", "subtitle": "ASTM/HL7 support for analyzers and IoT-enabled meters.", "icon": "diagram-3" },
+    { "title": "Multi-site Visibility", "subtitle": "Compare performance across ICU, OT, Labs, and Facilities.", "icon": "buildings" }
+  ],
+  "analytics": {
+    "title": "Analytics & Reporting",
+    "subtitle": "Track downtime, MTTR, PM compliance, and costs. Export to CSV/PDF or schedule auto-reports."
+  },
+  "support": {
+    "title": "Implementation & Support",
+    "subtitle": "Start in days, not months. Import spreadsheets, use templates, and rely on 24/7 WhatsApp/Email support."
+  },
+  "pricing": [
+    { "title": "Starter", "subtitle": "For small hospitals & clinics" },
+    { "title": "Team", "subtitle": "For growing maintenance departments" },
+    { "title": "Enterprise", "subtitle": "Full-scale hospitals & multi-sites" }
+  ],
+  "footer": {
+    "copyright": "© 2025 BioMaint CMMS",
+    "links": [
+      { "text": "Google Play", "href": "#" },
+      { "text": "App Store", "href": "#" }
+    ]
+  }
+}

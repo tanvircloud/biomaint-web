@@ -1,0 +1,558 @@
+/* ==========================================================================
+   BioMaint Theme (Light/Dark) – production-grade
+   - Works with Bootstrap 5.3 (overrides CSS vars)
+   - Accessible contrast, focus rings, selection, scrollbars
+   - Applies to Blazor components out of the box (forms, alerts, etc.)
+   - Includes PublicLayout styles (header, footer, mobile menu, buttons)
+   ========================================================================== */
+
+/* -------------------- Base tokens (fallbacks) ---------------------------- */
+:root {
+  /* radii & shadows */
+  --radius-sm: .375rem;
+  --radius-md: .75rem;
+  --radius-lg: 1rem;
+
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, .08), 0 1px 1px rgba(0, 0, 0, .06);
+  --shadow-2: 0 8px 24px rgba(0, 0, 0, .16), 0 2px 8px rgba(0, 0, 0, .12);
+
+  /* focus ring */
+  --focus-ring-color: rgba(16, 163, 127, .35);
+  /* derived from accent */
+  --focus-ring: 0 0 0 .25rem var(--focus-ring-color);
+}
+
+/* ============================== LIGHT =================================== */
+html[data-theme="light"],
+html[data-theme="auto"] {
+  color-scheme: light;
+
+  /* Core surfaces & text */
+  --bg: #f9fafc;
+  --surface: #ffffff;
+  --surface-2: #f3f4f6;
+  --border: #e5e7eb;
+
+  --text: #171717;
+  --text-muted: #6b7280;
+  --text-subtle: #9ca3af;
+
+  /* Brand / accent */
+  --accent: #10a37f;
+  --accent-contrast: #ffffff;
+  --accent-hover: #0e8f71;
+
+  /* Semantic palette */
+  --info: #0f766e;
+  --info-contrast: #ffffff;
+  --success: #15803d;
+  --success-contrast: #ffffff;
+  --warning: #f59e0b;
+  --warning-contrast: #171717;
+  --danger: #dc2626;
+  --danger-contrast: #ffffff;
+  --secondary: #1f2937;
+  --secondary-contrast: #ffffff;
+
+  /* Highlights used in panels/demos */
+  --purple: #6a1b9a;
+  --purple-contrast: #ffffff;
+  --teal: #0f766e;
+  --teal-contrast: #ffffff;
+  --neutral: #e5e7eb;
+  --neutral-contrast: #171717;
+
+  /* Selection & scrollbar */
+  --selection-bg: #10a37f;
+  --selection-text: #ffffff;
+
+  --scrollbar-track: #e5e7eb;
+  --scrollbar-thumb: #cbd5e1;
+}
+
+/* ============================== DARK ==================================== */
+html[data-theme="dark"] {
+  color-scheme: dark;
+
+  --bg: #0a0a0a;
+  --surface: #121212;
+  --surface-2: #1a1a1a;
+  --border: #2a2a2a;
+
+  --text: #e5e5e5;
+  --text-muted: #c7c7c7;
+  --text-subtle: #a1a1aa;
+
+  --accent: #10a37f;
+  --accent-contrast: #ffffff;
+  --accent-hover: #0e8f71;
+
+  --info: #115e59;
+  --info-contrast: #ffffff;
+  --success: #15803d;
+  --success-contrast: #ffffff;
+  --warning: #ea8a11;
+  --warning-contrast: #171717;
+  --danger: #ef4444;
+  --danger-contrast: #ffffff;
+  --secondary: #1e1e20;
+  --secondary-contrast: #e5e5e5;
+
+  --purple: #6a1b9a;
+  --purple-contrast: #ffffff;
+  --teal: #115e59;
+  --teal-contrast: #ffffff;
+  --neutral: #1a1a1a;
+  --neutral-contrast: #e5e5e5;
+
+  --selection-bg: #10a37f;
+  --selection-text: #ffffff;
+
+  --scrollbar-track: #111315;
+  --scrollbar-thumb: #2a2a2a;
+}
+
+/* --------------------------- Global application -------------------------- */
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+  transition: background .25s ease, color .25s ease, border-color .25s ease;
+}
+
+/* Text helpers */
+.text-muted { color: var(--text-muted) !important; }
+.text-subtle { color: var(--text-subtle) !important; }
+.text-accent { color: var(--accent) !important; }
+
+a { color: var(--accent); }
+a:hover { color: var(--accent-hover); }
+
+/* Selection */
+::selection { background: var(--selection-bg); color: var(--selection-text); }
+::-moz-selection { background: var(--selection-bg); color: var(--selection-text); }
+
+/* Scrollbar (Chromium/WebKit) */
+*::-webkit-scrollbar { width: 12px; height: 12px; }
+*::-webkit-scrollbar-track { background: var(--scrollbar-track); }
+*::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 10px; }
+
+/* Focus ring */
+:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+
+/* Elevation & surfaces */
+.surface { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); }
+.surface-2 { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-md); }
+.elevated { box-shadow: var(--shadow-2); }
+.card-like { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-1); }
+
+/* Demo color panels (optional) */
+.color-panel { border-radius: var(--radius-lg); padding: 20px; min-height: 120px; display: flex; flex-direction: column; justify-content: center; }
+.neutral { background: var(--neutral); color: var(--neutral-contrast); border: 1px solid var(--border); }
+.teal { background: var(--teal); color: var(--teal-contrast); }
+.purple { background: var(--purple); color: var(--purple-contrast); }
+.dark { background: var(--secondary); color: var(--secondary-contrast); }
+.green { background: var(--success); color: var(--success-contrast); }
+.orange { background: var(--warning); color: var(--warning-contrast); }
+
+/* ==========================================================================
+   Bootstrap variable overrides (so .btn/.alert/.table/etc theme correctly)
+   Place after bootstrap.css
+   ========================================================================== */
+:root,
+html[data-theme="light"],
+html[data-theme="auto"],
+html[data-theme="dark"] {
+  /* Body */
+  --bs-body-bg: var(--bg);
+  --bs-body-color: var(--text);
+  --bs-border-color: var(--border);
+
+  /* Colors */
+  --bs-primary: var(--accent);
+  --bs-secondary: var(--secondary);
+  --bs-success: var(--success);
+  --bs-info: var(--info);
+  --bs-warning: var(--warning);
+  --bs-danger: var(--danger);
+  --bs-light: var(--surface-2);
+  --bs-dark: var(--secondary);
+
+  /* Links */
+  --bs-link-color: var(--accent);
+  --bs-link-hover-color: var(--accent-hover);
+
+  /* Cards */
+  --bs-card-bg: var(--surface);
+  --bs-card-color: var(--text);
+  --bs-card-border-color: var(--border);
+  --bs-card-cap-bg: var(--surface-2);
+
+  /* Tables */
+  --bs-table-bg: transparent;
+  --bs-table-color: var(--text);
+  --bs-table-striped-bg: color-mix(in srgb, var(--surface) 90%, black);
+  --bs-table-striped-color: var(--text);
+  --bs-table-hover-bg: color-mix(in srgb, var(--surface) 86%, black);
+  --bs-table-hover-color: var(--text);
+  --bs-table-border-color: var(--border);
+
+  /* Dropdowns */
+  --bs-dropdown-bg: var(--surface);
+  --bs-dropdown-color: var(--text);
+  --bs-dropdown-border-color: var(--border);
+  --bs-dropdown-link-color: var(--text);
+  --bs-dropdown-link-hover-bg: color-mix(in srgb, var(--surface) 92%, black);
+
+  /* Modals */
+  --bs-modal-bg: var(--surface);
+  --bs-modal-color: var(--text);
+  --bs-modal-border-color: var(--border);
+  --bs-modal-header-border-color: var(--border);
+  --bs-modal-footer-border-color: var(--border);
+
+  /* Navs / Tabs */
+  --bs-nav-link-color: var(--text);
+  --bs-nav-link-hover-color: var(--accent);
+  --bs-nav-tabs-link-hover-border-color: var(--border);
+  --bs-nav-tabs-link-active-color: var(--accent);
+  --bs-nav-tabs-link-active-bg: var(--surface);
+  --bs-nav-tabs-border-color: var(--border);
+
+  /* Pagination */
+  --bs-pagination-color: var(--accent);
+  --bs-pagination-hover-color: var(--accent-hover);
+  --bs-pagination-bg: var(--surface);
+  --bs-pagination-border-color: var(--border);
+  --bs-pagination-hover-bg: var(--surface-2);
+  --bs-pagination-hover-border-color: var(--border);
+  --bs-pagination-active-bg: var(--accent);
+  --bs-pagination-active-border-color: var(--accent);
+}
+
+/* Bootstrap buttons tuned to our tokens */
+.btn-primary {
+  --bs-btn-color: var(--accent-contrast);
+  --bs-btn-bg: var(--accent);
+  --bs-btn-border-color: var(--accent);
+  --bs-btn-hover-bg: var(--accent-hover);
+  --bs-btn-hover-border-color: var(--accent-hover);
+  --bs-btn-focus-shadow-rgb: 16, 163, 127; /* accent rgb for inner shadow */
+}
+
+.btn-outline-primary {
+  --bs-btn-color: var(--accent);
+  --bs-btn-border-color: var(--accent);
+  --bs-btn-hover-bg: var(--accent);
+  --bs-btn-hover-color: var(--accent-contrast);
+  --bs-btn-hover-border-color: var(--accent);
+}
+
+/* Extra button styles used by PublicLayout */
+.btn { border-radius: .75rem; font-weight: 600; }
+.btn-icon { padding: .5rem .6rem; border: 1px solid var(--border); background: var(--surface); color: var(--text); border-radius: .7rem; }
+.btn-ghost { background: transparent; color: var(--text); border: 1px solid var(--border); padding: .55rem .9rem; }
+.btn-outline { background: var(--surface-2); color: var(--text); border: 1px solid var(--border); }
+.btn-accent { background: var(--accent); color: var(--accent-contrast); padding: .55rem 1rem; border: 0; }
+.btn-accent:hover { filter: brightness(.98); }
+
+/* Alerts (tinted, readable on both themes) */
+.alert-primary { --bs-alert-bg: color-mix(in srgb, var(--accent) 12%, var(--surface)); --bs-alert-border-color: var(--accent); --bs-alert-color: var(--text); }
+.alert-success { --bs-alert-bg: color-mix(in srgb, var(--success) 12%, var(--surface)); --bs-alert-border-color: var(--success); --bs-alert-color: var(--text); }
+.alert-info    { --bs-alert-bg: color-mix(in srgb, var(--info) 12%, var(--surface)); --bs-alert-border-color: var(--info); --bs-alert-color: var(--text); }
+.alert-warning { --bs-alert-bg: color-mix(in srgb, var(--warning) 18%, var(--surface)); --bs-alert-border-color: var(--warning); --bs-alert-color: var(--warning-contrast); }
+.alert-danger  { --bs-alert-bg: color-mix(in srgb, var(--danger) 12%, var(--surface)); --bs-alert-border-color: var(--danger); --bs-alert-color: var(--text); }
+
+/* Optional solid alert variant */
+.alert-danger-solid { background: var(--danger); color: var(--danger-contrast); border: 1px solid var(--danger); }
+
+/* Badges */
+.badge.bg-primary { background: var(--accent) !important; color: var(--accent-contrast) !important; }
+.badge.bg-success { background: var(--success) !important; color: var(--success-contrast) !important; }
+.badge.bg-warning { background: var(--warning) !important; color: var(--warning-contrast) !important; }
+.badge.bg-danger  { background: var(--danger) !important; color: var(--danger-contrast) !important; }
+
+/* Forms */
+.form-control,
+.form-select,
+.form-check-input,
+.input-group-text,
+.form-control:disabled,
+.form-select:disabled {
+  color: var(--text);
+  background-color: var(--surface);
+  border-color: var(--border);
+}
+.form-control::placeholder { color: var(--text-subtle); opacity: 1; }
+.form-control:focus,
+.form-select:focus {
+  color: var(--text);
+  background-color: var(--surface);
+  border-color: var(--accent);
+  box-shadow: var(--focus-ring);
+}
+.form-check-input:checked { background-color: var(--accent); border-color: var(--accent); }
+
+/* Blazor validation helpers */
+.validation-message { color: var(--danger); font-size: .85rem; margin-top: .25rem; }
+.input-validation-error, .is-invalid { border-color: var(--danger) !important; background-image: none !important; }
+.valid.modified:not([type=checkbox]) { border-color: var(--success); }
+.invalid.modified:not([type=checkbox]) { border-color: var(--danger); }
+
+/* Navbar */
+.navbar,
+.navbar .dropdown-menu {
+  background: var(--surface);
+  border-color: var(--border);
+}
+.navbar .nav-link { color: var(--text); }
+.navbar .nav-link:hover,
+.navbar .nav-link:focus { color: var(--accent); }
+
+/* Offcanvas & Drawer */
+.offcanvas { z-index: 1105 !important; }
+.offcanvas-backdrop { z-index: 1100 !important; }
+.offcanvas,
+.offcanvas-header,
+.offcanvas-body {
+  color: var(--text);
+  background: var(--surface);
+  border-color: var(--border);
+}
+
+/* Cards */
+.card {
+  background: var(--surface);
+  color: var(--text);
+  border-color: var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-1);
+}
+.card .card-header,
+.card .card-footer {
+  background: var(--surface-2);
+  border-color: var(--border);
+}
+
+/* Tables */
+.table { color: var(--text); }
+.table> :not(caption)>*>* { background-color: transparent; border-color: var(--border); }
+.table-striped>tbody>tr:nth-of-type(odd)>* { background-color: var(--bs-table-striped-bg); }
+.table-hover>tbody>tr:hover>* { background-color: var(--bs-table-hover-bg); }
+
+/* Dropdowns */
+.dropdown-menu {
+  background: var(--surface);
+  color: var(--text);
+  border-color: var(--border);
+  box-shadow: var(--shadow-2);
+}
+
+/* Modal */
+.modal-content {
+  background: var(--surface);
+  color: var(--text);
+  border-color: var(--border);
+  box-shadow: var(--shadow-2);
+}
+
+/* Tooltips & Popovers */
+.tooltip .tooltip-inner { background: var(--secondary); color: var(--secondary-contrast); }
+.bs-tooltip-auto[data-popper-placement^=top] .tooltip-arrow::before,
+.bs-tooltip-top .tooltip-arrow::before { border-top-color: var(--secondary); }
+.popover { background: var(--surface); color: var(--text); border-color: var(--border); }
+
+/* Toasts */
+.toast { background: var(--surface); color: var(--text); border-color: var(--border); }
+
+/* Progress */
+.progress { background: var(--surface-2); }
+.progress-bar { background: var(--accent); }
+
+/* Code / mark */
+code, pre { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-sm); }
+mark { background: color-mix(in srgb, var(--accent) 30%, transparent); color: var(--text); }
+
+/* Pagination radius & shadows */
+.pagination .page-link { border-color: var(--border); }
+.pagination .page-item .page-link { border-radius: var(--radius-sm); }
+
+/* --------------------- Public Layout (header/footer) --------------------- */
+.skip-link {
+  position: absolute; left: -9999px; top: auto; width: 1px; height: 1px; overflow: hidden;
+}
+.skip-link:focus {
+  left: 16px; top: 16px; width: auto; height: auto; z-index: 1000;
+  background: var(--accent); color: var(--accent-contrast);
+  padding: .5rem .75rem; border-radius: .5rem;
+}
+
+.bm-header {
+  position: sticky; top: 0; z-index: 100;
+  backdrop-filter: saturate(180%) blur(10px);
+  background: color-mix(in srgb, var(--bg) 85%, transparent);
+  border-bottom: 1px solid var(--border);
+}
+.shadow-header { box-shadow: var(--shadow-1); }
+
+.brand-logo { width: 28px; height: 28px; border-radius: .5rem; }
+.brand-logo.small { width: 22px; height: 22px; }
+.brand-text { color: var(--text); font-weight: 700; font-size: 1.125rem; }
+
+.nav-link { color: var(--text); opacity: .9; text-decoration: none; padding: .5rem .25rem; }
+.nav-link.active { color: var(--text); font-weight: 600; }
+.nav-link:hover { opacity: 1; }
+
+.bm-mobile { display: none; border-bottom: 1px solid var(--border); background: var(--surface); }
+.bm-mobile.open { display: block; }
+
+.mobile-link { padding: .6rem 0; color: var(--text); text-decoration: none; border-bottom: 1px solid var(--border); }
+
+.bm-main { min-height: calc(100dvh - 220px); background: var(--bg); color: var(--text); }
+
+.bm-footer { background: var(--surface); border-top: 1px solid var(--border); padding: 2.5rem 0; }
+.footer-grid { display: grid; grid-template-columns: 1.2fr repeat(3, 1fr); gap: 2rem; }
+.footer-title { color: var(--text); font-weight: 700; margin-bottom: .5rem; }
+.footer-link { display: block; color: var(--text); opacity: .9; text-decoration: none; padding: .25rem 0; }
+.footer-link:hover { opacity: 1; }
+@media (max-width: 767.98px) { .footer-grid { grid-template-columns: 1fr 1fr; } }
+
+/* ========================= Sticky Header (update) ======================== */
+/* Force sticky header always visible */
+header,
+.bm-header,
+.navbar.sticky-top {
+  position: sticky; top: 0; z-index: 1030; /* above modals */
+  backdrop-filter: saturate(180%) blur(10px);
+  background: color-mix(in srgb, var(--surface) 90%, transparent);
+  border-bottom: 1px solid var(--border);
+  transition: background .3s ease, box-shadow .3s ease;
+}
+/* Add subtle shadow when scrolled */
+header.scrolled,
+.bm-header.scrolled,
+.navbar.sticky-top.scrolled { box-shadow: var(--shadow-1); background: var(--surface); }
+
+/* --------------------- Accessibility & motion prefs ---------------------- */
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation-duration: .01ms !important; }
+}
+@media (prefers-contrast: more) {
+  :root {
+    --border: color-mix(in srgb, var(--border) 70%, white);
+    --focus-ring-color: color-mix(in srgb, var(--accent) 60%, white);
+  }
+}
+
+/* === BioMaint additions (non-breaking) ================================== */
+/* Helper used in Index.razor */
+.section-bg { background: var(--surface-2); }
+
+/* Make sure the mobile toggler is visible in both themes */
+.navbar .navbar-toggler { border-color: var(--border); }
+.navbar .navbar-toggler:focus { box-shadow: var(--focus-ring); }
+
+/* Encode a light/dark SVG for the hamburger so it’s always readable */
+html[data-theme="light"] .navbar-toggler-icon {
+  background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3e%3cpath stroke='rgba(23,23,23,0.85)' stroke-width='2' stroke-linecap='round' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+html[data-theme="dark"] .navbar-toggler-icon {
+  background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3e%3cpath stroke='rgba(229,229,229,0.9)' stroke-width='2' stroke-linecap='round' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+
+/* Dropdown readability + hover in both themes */
+.dropdown-menu .dropdown-item { color: var(--text); }
+.dropdown-menu .dropdown-item:hover,
+.dropdown-menu .dropdown-item:focus {
+  background: color-mix(in srgb, var(--surface) 92%, black);
+  color: var(--text);
+}
+
+/* Subtle section/hero animation (opt-in: add .fade-up to an element) */
+@keyframes bm-fade-up { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.fade-up { animation: bm-fade-up .45s ease-out both; }
+
+/* ===== Nav / Offcanvas hardening (APPEND-ONLY) ===== */
+
+/* Make the hamburger visible on both themes */
+.bm-header .navbar-toggler { border-color: var(--border); }
+.bm-header .navbar-toggler-icon {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'%3e%3cpath stroke='%23e5e5e5' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+html[data-theme="light"] .bm-header .navbar-toggler-icon {
+  /* darker icon for light mode */
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'%3e%3cpath stroke='%23171717' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+
+/* Dropdown readability on dark + clearer highlight */
+.dropdown-menu {
+  --bs-dropdown-bg: var(--surface);
+  --bs-dropdown-color: var(--text);
+  --bs-dropdown-link-color: var(--text);
+  --bs-dropdown-link-hover-bg: color-mix(in srgb, var(--surface) 92%, black);
+  --bs-dropdown-border-color: var(--border);
+  box-shadow: var(--shadow-2);
+}
+/* In the navbar specifically, use a slightly lighter surface for contrast */
+.navbar .dropdown-menu { background: var(--surface-2); }
+
+/* Accent-tinted hover/active so it’s obvious in dark mode */
+.dropdown-item { color: var(--text); }
+.dropdown-menu .dropdown-item:hover,
+.dropdown-menu .dropdown-item:focus {
+  background: color-mix(in srgb, var(--accent) 18%, var(--surface-2));
+  color: var(--text);
+}
+.dropdown-item.active,
+.dropdown-item:active {
+  color: var(--accent-contrast);
+  background: var(--accent);
+}
+
+/* Fallback for browsers w/o color-mix */
+@supports not (color: color-mix(in srgb, white 50%, black 50%)) {
+  .dropdown-menu .dropdown-item:hover,
+  .dropdown-menu .dropdown-item:focus {
+    background: var(--surface);
+    color: var(--text);
+  }
+  .navbar .dropdown-menu { background: var(--surface); }
+}
+
+/* Stronger keyboard focus on dropdown items */
+.dropdown-menu .dropdown-item:focus {
+  outline: 2px solid color-mix(in srgb, var(--accent) 55%, transparent);
+  outline-offset: 2px;
+}
+
+/* Offcanvas palette on mobile */
+.offcanvas,
+.offcanvas-header,
+.offcanvas-body { background: var(--surface); color: var(--text); border-color: var(--border); }
+.offcanvas .nav-link { color: var(--text); }
+.offcanvas .nav-link:hover { color: var(--accent); }
+.offcanvas hr { border-color: var(--border); }
+
+/* Make active top-level nav clearly visible (accent + underline) */
+.navbar .nav-link.active {
+  color: var(--accent);
+  font-weight: 600;
+  position: relative;
+}
+.navbar .nav-link.active::after {
+  content: "";
+  position: absolute;
+  left: .5rem; right: .5rem; bottom: .25rem;
+  height: 2px; background: var(--accent); border-radius: 2px;
+}
+
+/* Ensure sticky header shadow appears when scrolling */
+.bm-header.scrolled { box-shadow: var(--shadow-1); }
+
+/* End of additions */

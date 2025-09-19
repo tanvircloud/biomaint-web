@@ -1,0 +1,23 @@
+# .NET / Blazor
+bin/
+obj/
+*.user
+*.suo
+*.userprefs
+
+# Publish + local artifacts
+**/publish/
+*.log
+
+# IDE
+.vscode/
+.vs/
+
+# Node/tooling (if you add later)
+node_modules/
+dist/
+.cache/
+
+# OS
+.DS_Store
+Thumbs.db

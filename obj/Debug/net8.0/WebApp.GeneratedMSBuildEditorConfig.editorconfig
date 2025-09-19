@@ -1,0 +1,223 @@
+is_global = true
+build_property.EnableAotAnalyzer = 
+build_property.EnableSingleFileAnalyzer = 
+build_property.EnableTrimAnalyzer = false
+build_property.IncludeAllContentForSelfExtract = 
+build_property.TargetFramework = net8.0
+build_property.TargetPlatformMinVersion = 
+build_property.UsingMicrosoftNETSdkWeb = 
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = false
+build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = browser
+build_property.RootNamespace = WebApp
+build_property.RootNamespace = WebApp
+build_property.ProjectDir = C:\dev\app\WebApp\
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = false
+build_property.RazorLangVersion = 8.0
+build_property.SupportLocalizedComponentNames = 
+build_property.GenerateRazorMetadataSourceChecksumAttributes = 
+build_property.MSBuildProjectDirectory = C:\dev\app\WebApp
+build_property._RazorSourceGeneratorDebug = 
+
+[C:/dev/app/WebApp/App.razor]
+build_metadata.AdditionalFiles.TargetPath = QXBwLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/dev/app/WebApp/Components/Sections/CTA.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xTZWN0aW9uc1xDVEEucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/dev/app/WebApp/Components/Sections/FAQ.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xTZWN0aW9uc1xGQVEucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/dev/app/WebApp/Components/Sections/FeaturesGrid.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xTZWN0aW9uc1xGZWF0dXJlc0dyaWQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/dev/app/WebApp/Components/Sections/Hero.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xTZWN0aW9uc1xIZXJvLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/dev/app/WebApp/Components/Sections/Integrations.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xTZWN0aW9uc1xJbnRlZ3JhdGlvbnMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/dev/app/WebApp/Components/Sections/Metrics.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xTZWN0aW9uc1xNZXRyaWNzLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/dev/app/WebApp/Components/Sections/Testimonials.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xTZWN0aW9uc1xUZXN0aW1vbmlhbHMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/dev/app/WebApp/Components/Ui/Badge.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xVaVxCYWRnZS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/dev/app/WebApp/Components/Ui/Card.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xVaVxDYXJkLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/dev/app/WebApp/Components/Ui/Icon.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xVaVxJY29uLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/dev/app/WebApp/Components/Ui/Section.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xVaVxTZWN0aW9uLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/dev/app/WebApp/Components/Ui/Skeleton.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xVaVxTa2VsZXRvbi5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/dev/app/WebApp/Pages/App/Assets.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQXBwXEFzc2V0cy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/dev/app/WebApp/Pages/App/Dashboard.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQXBwXERhc2hib2FyZC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/dev/app/WebApp/Pages/App/Notifications.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQXBwXE5vdGlmaWNhdGlvbnMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/dev/app/WebApp/Pages/App/Reports.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQXBwXFJlcG9ydHMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/dev/app/WebApp/Pages/App/Settings/Billing.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQXBwXFNldHRpbmdzXEJpbGxpbmcucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/dev/app/WebApp/Pages/App/Settings/Organization.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQXBwXFNldHRpbmdzXE9yZ2FuaXphdGlvbi5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/dev/app/WebApp/Pages/App/Settings/Profile.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQXBwXFNldHRpbmdzXFByb2ZpbGUucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/dev/app/WebApp/Pages/App/Settings/SecuritySettings.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQXBwXFNldHRpbmdzXFNlY3VyaXR5U2V0dGluZ3MucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/dev/app/WebApp/Pages/App/Settings/Users.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQXBwXFNldHRpbmdzXFVzZXJzLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/dev/app/WebApp/Pages/App/WorkOrders.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQXBwXFdvcmtPcmRlcnMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/dev/app/WebApp/Pages/App/_AppImports.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQXBwXF9BcHBJbXBvcnRzLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/dev/app/WebApp/Pages/Auth/ForgotPassword.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQXV0aFxGb3Jnb3RQYXNzd29yZC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/dev/app/WebApp/Pages/Auth/Login.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQXV0aFxMb2dpbi5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/dev/app/WebApp/Pages/Auth/Signup.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQXV0aFxTaWdudXAucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/dev/app/WebApp/Pages/Auth/TwoFactor.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQXV0aFxUd29GYWN0b3IucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/dev/app/WebApp/Pages/Index.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSW5kZXgucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/dev/app/WebApp/Pages/Public/About.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUHVibGljXEFib3V0LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/dev/app/WebApp/Pages/Public/Blog.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUHVibGljXEJsb2cucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/dev/app/WebApp/Pages/Public/Contact.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUHVibGljXENvbnRhY3QucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/dev/app/WebApp/Pages/Public/Index.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUHVibGljXEluZGV4LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/dev/app/WebApp/Pages/Public/Industries.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUHVibGljXEluZHVzdHJpZXMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/dev/app/WebApp/Pages/Public/Pricing.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUHVibGljXFByaWNpbmcucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/dev/app/WebApp/Pages/Public/Privacy.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUHVibGljXFByaXZhY3kucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/dev/app/WebApp/Pages/Public/Product.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUHVibGljXFByb2R1Y3QucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/dev/app/WebApp/Pages/Public/Security.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUHVibGljXFNlY3VyaXR5LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/dev/app/WebApp/Pages/Public/Terms.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUHVibGljXFRlcm1zLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/dev/app/WebApp/Shared/AppLayout.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXEFwcExheW91dC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/dev/app/WebApp/Shared/BlankLayout.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXEJsYW5rTGF5b3V0LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/dev/app/WebApp/Shared/Footer.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXEZvb3Rlci5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/dev/app/WebApp/Shared/Header.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXEhlYWRlci5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/dev/app/WebApp/Shared/LoginLayout.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXExvZ2luTGF5b3V0LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/dev/app/WebApp/Shared/MainLayout.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXE1haW5MYXlvdXQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/dev/app/WebApp/Shared/NotFound.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXE5vdEZvdW5kLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/dev/app/WebApp/Shared/PageHead.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXFBhZ2VIZWFkLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/dev/app/WebApp/Shared/PublicLayout.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXFB1YmxpY0xheW91dC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/dev/app/WebApp/Shared/RedirectToLogin.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXFJlZGlyZWN0VG9Mb2dpbi5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/dev/app/WebApp/_Imports.razor]
+build_metadata.AdditionalFiles.TargetPath = X0ltcG9ydHMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 

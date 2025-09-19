@@ -1,0 +1,27 @@
+@inject IJSRuntime JS
+
+@code {
+    private Task CycleTheme() => JS.InvokeVoidAsync("BioTheme.cycle").AsTask();
+}
+
+<nav class="navbar navbar-expand-lg bm-header">
+  <div class="container">
+    <a class="navbar-brand d-flex align-items-center" href="/">
+      <img class="brand-logo me-2" src="/assets/logos/mark.png" alt="logo" height="28" />
+      <span class="brand-text">BioMaint</span>
+    </a>
+
+    <!-- Theme toggle -->
+    <button class="btn btn-sm ms-auto me-2" @onclick="CycleTheme">Theme</button>
+
+    <!-- Nav links -->
+    <div class="collapse navbar-collapse show">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link" href="/features">Features</a></li>
+        <li class="nav-item"><a class="nav-link" href="/pricing">Pricing</a></li>
+        <li class="nav-item"><a class="nav-link" href="/about">About</a></li>
+        <li class="nav-item ms-2"><a class="btn btn-accent" href="/login">Sign in</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>

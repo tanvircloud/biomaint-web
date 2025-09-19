@@ -1,0 +1,13 @@
+@inherits LayoutComponentBase
+
+<div class="d-flex flex-column min-vh-100" style="background:var(--bg);">
+    <main class="flex-grow-1 d-flex justify-content-center align-items-center">
+        @Body
+    </main>
+
+    <footer class="text-center py-3" style="color:var(--text-muted); font-size:14px; border-top:1px solid var(--border);">
+        © 2025 BioMaint |
+        <a href="/terms" style="color:var(--accent);text-decoration:none;">Terms</a> &amp; 
+        <a href="/privacy" style="color:var(--accent);text-decoration:none;">Privacy</a>
+    </footer>
+</div>

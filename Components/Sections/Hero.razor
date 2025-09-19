@@ -1,0 +1,50 @@
+@using WebApp.Models
+
+<section class="bm-hero text-center text-lg-start">
+    <div class="container py-5">
+        <!-- Eyebrow / tagline -->
+        @if (!string.IsNullOrWhiteSpace(Data?.Eyebrow))
+        {
+            <p class="eyebrow text-uppercase small text-muted mb-2">
+                @Data?.Eyebrow
+            </p>
+        }
+
+        <!-- Main title -->
+        @if (!string.IsNullOrWhiteSpace(Data?.Title))
+        {
+            <h1 class="display-4 fw-bold mb-3">
+                @Data?.Title
+            </h1>
+        }
+
+        <!-- Subtitle -->
+        @if (!string.IsNullOrWhiteSpace(Data?.Subtitle))
+        {
+            <p class="lead text-muted mb-4" style="max-width:720px; margin:auto;">
+                @Data?.Subtitle
+            </p>
+        }
+
+        <!-- CTAs -->
+        <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center mt-4">
+            @if (!string.IsNullOrWhiteSpace(Data?.CtaText) && !string.IsNullOrWhiteSpace(Data?.CtaHref))
+            {
+                <a class="btn btn-accent btn-lg" href="@Data?.CtaHref" aria-label="@Data?.CtaText">
+                    @Data?.CtaText
+                </a>
+            }
+
+            @if (!string.IsNullOrWhiteSpace(Data?.SecondaryCtaText) && !string.IsNullOrWhiteSpace(Data?.SecondaryCtaHref))
+            {
+                <a class="btn btn-outline-secondary btn-lg" href="@Data?.SecondaryCtaHref" aria-label="@Data?.SecondaryCtaText">
+                    @Data?.SecondaryCtaText
+                </a>
+            }
+        </div>
+    </div>
+</section>
+
+@code {
+    [Parameter] public HeroModel? Data { get; set; }
+}

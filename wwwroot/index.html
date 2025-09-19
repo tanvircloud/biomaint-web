@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <base href="/" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Primary meta -->
+  <title>BioMaint CMMS – Modern Maintenance Management</title>
+  <meta name="description" content="BioMaint CMMS helps hospitals and enterprises manage assets, work orders, PM schedules, inventory, and compliance with ease." />
+  <meta name="keywords" content="CMMS, maintenance software, hospital asset management, work orders, preventive maintenance, inventory tracking" />
+  <meta name="author" content="BioMaint" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="BioMaint CMMS – Modern Maintenance Management" />
+  <meta property="og:description" content="Manage assets, work orders, PM schedules, and inventory like a modern SaaS." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://biomaint.com/" />
+  <meta property="og:image" content="/images/og-banner.png" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="BioMaint CMMS – Modern Maintenance Management" />
+  <meta name="twitter:description" content="Manage assets, work orders, PM schedules, and inventory like a modern SaaS." />
+  <meta name="twitter:image" content="/images/og-banner.png" />
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png" />
+  <meta name="theme-color" content="#10a37f" />
+
+  <!-- Prevent theme flash -->
+  <script>
+    (function () {
+      try {
+        const saved = localStorage.getItem('biomaint-theme') || 'auto';
+        const eff = (saved === 'light' || saved === 'dark')
+          ? saved
+          : (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', eff);
+        document.documentElement.setAttribute('data-bs-theme', eff);
+        document.documentElement.style.colorScheme = eff;
+      } catch {}
+    })();
+  </script>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
+  <link rel="stylesheet" href="css/theme.css" />
+  <link rel="stylesheet" href="css/app.css" />
+
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+
+  <!-- Error UI styling -->
+  <style>
+    #blazor-error-ui {
+      display: none;
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: #fff3cd;
+      color: #664d03;
+      padding: .5rem 1rem;
+      border-top: 1px solid #ffe69c;
+      z-index: 1000
+    }
+    #blazor-error-ui .dismiss {
+      cursor: pointer;
+      float: right;
+      margin-left: .5rem
+    }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+
+  <div id="blazor-error-ui">
+    An unhandled error has occurred.
+    <a href="" class="reload">Reload</a>
+    <a class="dismiss">×</a>
+  </div>
+
+  <!-- ✅ Bootstrap JS (CDN) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+          crossorigin="anonymous"></script>
+
+  <!-- Theme runtime -->
+  <script src="js/theme.js" defer></script>
+
+
+  <!-- Blazor boot -->
+  <script src="_framework/blazor.webassembly.js"></script>
+</body>
+</html>

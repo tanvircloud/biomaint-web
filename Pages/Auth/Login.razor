@@ -1,0 +1,239 @@
+@page "/login"
+@layout LoginLayout
+@using System.Text.Json
+@using System.Net.Http.Json
+@inject HttpClient Http
+@inject NavigationManager Nav
+@inject IConfiguration Config
+
+<div class="d-flex flex-column justify-content-center align-items-center" 
+     style="min-height:100vh; background:var(--bg);">
+
+  <!-- Card -->
+  <div style="
+      width:100%;max-width:380px;padding:40px;
+      background:var(--surface);color:var(--text);
+      border:1px solid var(--border);border-radius:16px;
+      box-shadow:var(--shadow-2);" role="form">
+
+    <!-- Brand -->
+    <div style="text-align:center;margin-bottom:25px;">
+      <img src="favicon.png" alt="BioMaint Logo" style="height:48px;margin-bottom:12px;" />
+      <h2 style="margin:0;color:var(--accent);">@AppName</h2>
+      <p style="color:var(--text-muted);font-size:14px;margin:5px 0 0 0;">@Subtitle</p>
+    </div>
+
+    @if (!RequireMfa)
+    {
+        <!-- Email -->
+        <div style="margin-bottom:18px;">
+          <label for="email" class="form-label" style="font-weight:600;color:var(--text);">Email *</label>
+          <input id="email" @bind="Email" type="email" class="form-control"
+                 style="background:var(--surface);color:var(--text);border-color:var(--border);" 
+                 autocomplete="username" required />
+          @if (!string.IsNullOrEmpty(EmailError))
+          {
+            <div style="color:var(--danger);font-size:12px;margin-top:6px;" role="alert">@EmailError</div>
+          }
+        </div>
+
+        <!-- Password -->
+        <div style="margin-bottom:18px;">
+          <label for="password" class="form-label" style="font-weight:600;color:var(--text);">Password *</label>
+          <div class="input-group" style="margin-top:5px;">
+            <input id="password" type="@(_obscure ? "password" : "text")" @bind="Password"
+                   class="form-control"
+                   style="background:var(--surface);color:var(--text);border-color:var(--border);" 
+                   autocomplete="current-password" required minlength="8" />
+            <button @onclick="ToggleObscure" type="button" class="btn btn-outline-secondary"
+                    style="border-color:var(--border);background:var(--surface-2);color:var(--text);">
+              @(_obscure ? "👁" : "🚫")
+            </button>
+          </div>
+          @if (!string.IsNullOrEmpty(PasswordError))
+          {
+            <div style="color:var(--danger);font-size:12px;margin-top:6px;" role="alert">@PasswordError</div>
+          }
+        </div>
+
+        <!-- Remember Me -->
+        <div class="form-check mb-3">
+          <input class="form-check-input" type="checkbox" id="remember" @bind="RememberMe" />
+          <label class="form-check-label" for="remember" style="color:var(--text);">
+            Remember me
+          </label>
+        </div>
+    }
+    else
+    {
+        <!-- MFA Step -->
+        <div style="margin-bottom:18px;">
+          <label for="mfa" class="form-label" style="font-weight:600;color:var(--text);">Enter MFA Code *</label>
+          <input id="mfa" @bind="MfaCode" type="text" class="form-control"
+                 style="background:var(--surface);color:var(--text);border-color:var(--border);" 
+                 inputmode="numeric" maxlength="6" autocomplete="one-time-code" />
+        </div>
+    }
+
+    <!-- Submit -->
+    <button @onclick="Submit" disabled="@IsLoading" class="btn w-100"
+            style="
+              padding:14px;
+              background:var(--accent);color:var(--accent-contrast);
+              border:none;border-radius:8px;font-size:16px;font-weight:600;
+              cursor:pointer;transition:background .2s ease;">
+      @(IsLoading ? "Processing..." : (RequireMfa ? "Verify Code" : "Log In"))
+    </button>
+
+    <!-- Error -->
+    @if (!string.IsNullOrEmpty(Error))
+    {
+      <div class="alert text-center" role="alert"
+           style="
+             margin-top:15px;padding:10px;
+             background:var(--danger);color:var(--danger-contrast);
+             border:1px solid var(--danger);border-radius:6px;">
+        @Error
+      </div>
+    }
+
+    <!-- Forgot -->
+    @if (!RequireMfa)
+    {
+        <div style="text-align:center;margin-top:18px;">
+          <a href="/forgot-password" style="color:var(--accent);text-decoration:none;font-size:14px;">
+            Forgot your password?
+          </a>
+        </div>
+    }
+  </div>
+</div>
+
+@code {
+    private string AppName = "BioMaint";
+    private string Subtitle = "Log in to simplify tasks";
+
+    private string Email = "";
+    private string Password = "";
+    private string MfaCode = "";
+    private bool RememberMe = false;
+    private bool _obscure = true;
+    private bool IsLoading = false;
+    private string? EmailError;
+    private string? PasswordError;
+    private string? Error;
+    private bool RequireMfa = false;
+
+    private string _returnUrl = "/app/dashboard";
+
+    private string ApiBase => ((Config["ApiBaseUrl"] ?? "https://biomaint.com/").TrimEnd('/') + "/");
+    private string LoginUrl => $"{ApiBase}api/auth/login";
+    private string VerifyMfaUrl => $"{ApiBase}api/auth/verify-mfa";
+
+    private static readonly System.Text.RegularExpressions.Regex EmailPattern =
+        new(@"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$",
+            System.Text.RegularExpressions.RegexOptions.Compiled | System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+
+    protected override void OnInitialized()
+    {
+        _returnUrl = GetQueryParam(Nav.Uri, "returnUrl") ?? "/app/dashboard";
+    }
+
+    private void ToggleObscure() => _obscure = !_obscure;
+
+    private async Task Submit()
+    {
+        if (!RequireMfa)
+        {
+            EmailError = string.IsNullOrWhiteSpace(Email) ? "Please enter your email" : null;
+            PasswordError = string.IsNullOrWhiteSpace(Password) ? "Please enter your password" : null;
+
+            if (EmailError is null && !EmailPattern.IsMatch(Email))
+                EmailError = "Please enter a valid email address";
+
+            if (PasswordError is null && Password.Length < 8)
+                PasswordError = "Password must be at least 8 characters long";
+
+            if (EmailError != null || PasswordError != null)
+                return;
+        }
+        else if (string.IsNullOrWhiteSpace(MfaCode))
+        {
+            Error = "Please enter the MFA code.";
+            return;
+        }
+
+        IsLoading = true;
+        Error = null;
+
+        try
+        {
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
+
+            if (!RequireMfa)
+            {
+                var payload = new { email = Email, password = Password, rememberMe = RememberMe };
+                var resp = await Http.PostAsJsonAsync(LoginUrl, payload, cts.Token);
+
+                if (resp.StatusCode == System.Net.HttpStatusCode.Forbidden)
+                {
+                    RequireMfa = true;
+                    return;
+                }
+
+                if (!resp.IsSuccessStatusCode)
+                {
+                    Error = "Invalid credentials.";
+                    return;
+                }
+
+                Nav.NavigateTo(_returnUrl, forceLoad: true);
+            }
+            else
+            {
+                var payload = new { email = Email, code = MfaCode };
+                var resp = await Http.PostAsJsonAsync(VerifyMfaUrl, payload, cts.Token);
+
+                if (!resp.IsSuccessStatusCode)
+                {
+                    Error = "Invalid MFA code.";
+                    return;
+                }
+
+                Nav.NavigateTo(_returnUrl, forceLoad: true);
+            }
+        }
+        catch (TaskCanceledException)
+        {
+            Error = "Request timed out. Please try again.";
+        }
+        catch (HttpRequestException)
+        {
+            Error = "Cannot reach the API. In development, enable CORS for http://localhost and check ApiBaseUrl.";
+        }
+        catch
+        {
+            Error = "Server unavailable. Try again later.";
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    private static string? GetQueryParam(string uri, string key)
+    {
+        var qIndex = uri.IndexOf('?', StringComparison.Ordinal);
+        if (qIndex < 0) return null;
+        var query = uri[(qIndex + 1)..];
+        foreach (var part in query.Split('&', StringSplitOptions.RemoveEmptyEntries))
+        {
+            var kv = part.Split('=', 2);
+            if (Uri.UnescapeDataString(kv[0]) == key)
+                return kv.Length > 1 ? Uri.UnescapeDataString(kv[1]) : "";
+        }
+        return null;
+    }
+
+    private sealed record LoginResponse(string AccessToken);
+}

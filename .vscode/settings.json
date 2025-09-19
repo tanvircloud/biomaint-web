@@ -1,0 +1,9 @@
+{
+  "json.schemaDownload.enable": false,
+  "json.schemas": [
+    {
+      "fileMatch": ["wwwroot/appsettings.json"],
+      "url": "./wwwroot/appsettings.schema.json"
+    }
+  ]
+}

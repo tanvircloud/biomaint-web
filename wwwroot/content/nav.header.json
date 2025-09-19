@@ -1,0 +1,33 @@
+{
+  "brand": "BioMaint",
+  "logo": "/assets/logos/mark.png",
+  "links": [
+    {
+      "title": "Product",
+      "children": [
+        { "title": "Work Orders", "href": "/product/work-orders" },
+        { "title": "Preventive Maintenance", "href": "/product/pm" },
+        { "title": "Assets & Warranty", "href": "/product/assets" },
+        { "title": "Inventory & Parts", "href": "/product/inventory" },
+        { "title": "Reports & Dashboards", "href": "/product/reports" },
+        { "title": "Mobile CMMS App", "href": "/product/mobile" }
+      ]
+    },
+    {
+      "title": "Solutions",
+      "children": [
+        { "title": "Hospitals", "href": "/solutions/hospitals" },
+        { "title": "Clinics", "href": "/solutions/clinics" }
+      ]
+    },
+    { "title": "Enterprise", "href": "/enterprise" },
+    {
+      "title": "Resources",
+      "children": [
+        { "title": "Blog", "href": "/blog" },
+        { "title": "FAQ", "href": "/faq" }
+      ]
+    },
+    { "title": "Pricing", "href": "/pricing" }
+  ]
+}

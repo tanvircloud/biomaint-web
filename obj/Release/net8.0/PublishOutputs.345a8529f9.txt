@@ -1,0 +1,1 @@
+C:\dev\app\WebApp\bin\Release\net8.0\publish\web.config

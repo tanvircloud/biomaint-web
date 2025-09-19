@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+
+    <!-- Globalization for multi-locale (Bangla, etc.) -->
+    <InvariantGlobalization>false</InvariantGlobalization>
+    <!-- Smaller payload than "all"; good default for prod -->
+    <WasmIcuData>sharded</WasmIcuData>
+  </PropertyGroup>
+
+  <!-- Release-only production settings -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <RunAOTCompilation>true</RunAOTCompilation>
+    <PublishTrimmed>true</PublishTrimmed>
+    <DebuggerSupport>false</DebuggerSupport>
+    <InvariantGlobalization>false</InvariantGlobalization>
+    <WasmIcuData>sharded</WasmIcuData>
+  </PropertyGroup>
+
+  <ItemGroup>
+  <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.14" />
+  <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.14" PrivateAssets="all" />
+  <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="8.0.14" />
+  <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
+  <PackageReference Include="Microsoft.Extensions.Http.Resilience" Version="8.6.0" />
+</ItemGroup>
+
+  <!-- Optional: analyzers for stricter builds -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="8.0.0" PrivateAssets="all" />
+  </ItemGroup>
+
+</Project>

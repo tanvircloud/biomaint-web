@@ -1,0 +1,51 @@
+@using WebApp.Models
+
+<section class="bm-features">
+    <div class="container py-5">
+        <div class="row g-4">
+            @if (Items is not null && Items.Any())
+            {
+                @foreach (var f in Items)
+                {
+                    <div class="col-12 col-sm-6 col-lg-4">
+                        <div class="card h-100 shadow-sm border-0 surface p-4 text-center text-md-start">
+                            <!-- Icon (optional) -->
+                            @if (!string.IsNullOrWhiteSpace(f.Icon))
+                            {
+                                <div class="mb-3 text-accent fs-2" aria-hidden="true">
+                                    <i class="@f.Icon"></i>
+                                </div>
+                            }
+
+                            <!-- Title -->
+                            <h3 class="h5 fw-semibold mb-2">
+                                @f.Title
+                            </h3>
+
+                            <!-- Subtitle / description -->
+                            @if (!string.IsNullOrWhiteSpace(f.Subtitle))
+                            {
+                                <p class="text-muted mb-0">
+                                    @f.Subtitle
+                                </p>
+                            }
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <!-- Fallback (when no features provided) -->
+                <div class="col-12">
+                    <div class="alert alert-info text-center">
+                        Features will be available soon.
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+@code {
+    [Parameter] public IReadOnlyList<Feature>? Items { get; set; }
+}

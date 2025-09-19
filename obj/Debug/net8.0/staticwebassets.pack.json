@@ -1,0 +1,121 @@
+{
+  "Files": [
+    {
+      "Id": "C:\\dev\\app\\WebApp\\bin\\Debug\\net8.0\\wwwroot\\_framework\\blazor.webassembly.js",
+      "PackagePath": "staticwebassets\\_framework\\blazor.webassembly.js"
+    },
+    {
+      "Id": "C:\\dev\\app\\WebApp\\obj\\Debug\\net8.0\\compressed\\wjigv59mrj.gz",
+      "PackagePath": "staticwebassets\\_framework\\blazor.webassembly.js.gz"
+    },
+    {
+      "Id": "C:\\dev\\app\\WebApp\\wwwroot\\appsettings.json",
+      "PackagePath": "staticwebassets\\appsettings.json"
+    },
+    {
+      "Id": "C:\\dev\\app\\WebApp\\wwwroot\\content\\about.json",
+      "PackagePath": "staticwebassets\\content\\about.json"
+    },
+    {
+      "Id": "C:\\dev\\app\\WebApp\\wwwroot\\content\\blog.json",
+      "PackagePath": "staticwebassets\\content\\blog.json"
+    },
+    {
+      "Id": "C:\\dev\\app\\WebApp\\wwwroot\\content\\faq.json",
+      "PackagePath": "staticwebassets\\content\\faq.json"
+    },
+    {
+      "Id": "C:\\dev\\app\\WebApp\\wwwroot\\content\\industries.json",
+      "PackagePath": "staticwebassets\\content\\industries.json"
+    },
+    {
+      "Id": "C:\\dev\\app\\WebApp\\wwwroot\\content\\landing.json",
+      "PackagePath": "staticwebassets\\content\\landing.json"
+    },
+    {
+      "Id": "C:\\dev\\app\\WebApp\\wwwroot\\content\\nav.footer.json",
+      "PackagePath": "staticwebassets\\content\\nav.footer.json"
+    },
+    {
+      "Id": "C:\\dev\\app\\WebApp\\wwwroot\\content\\nav.header.json",
+      "PackagePath": "staticwebassets\\content\\nav.header.json"
+    },
+    {
+      "Id": "C:\\dev\\app\\WebApp\\wwwroot\\content\\pricing.json",
+      "PackagePath": "staticwebassets\\content\\pricing.json"
+    },
+    {
+      "Id": "C:\\dev\\app\\WebApp\\wwwroot\\content\\product.json",
+      "PackagePath": "staticwebassets\\content\\product.json"
+    },
+    {
+      "Id": "C:\\dev\\app\\WebApp\\wwwroot\\content\\security.json",
+      "PackagePath": "staticwebassets\\content\\security.json"
+    },
+    {
+      "Id": "C:\\dev\\app\\WebApp\\wwwroot\\content\\testimonials.json",
+      "PackagePath": "staticwebassets\\content\\testimonials.json"
+    },
+    {
+      "Id": "C:\\dev\\app\\WebApp\\wwwroot\\css\\app.css",
+      "PackagePath": "staticwebassets\\css\\app.css"
+    },
+    {
+      "Id": "C:\\dev\\app\\WebApp\\wwwroot\\css\\bootstrap\\bootstrap.min.css",
+      "PackagePath": "staticwebassets\\css\\bootstrap\\bootstrap.min.css"
+    },
+    {
+      "Id": "C:\\dev\\app\\WebApp\\wwwroot\\css\\bootstrap\\bootstrap.min.css.map",
+      "PackagePath": "staticwebassets\\css\\bootstrap\\bootstrap.min.css.map"
+    },
+    {
+      "Id": "C:\\dev\\app\\WebApp\\wwwroot\\css\\theme.css",
+      "PackagePath": "staticwebassets\\css\\theme.css"
+    },
+    {
+      "Id": "C:\\dev\\app\\WebApp\\wwwroot\\favicon.png",
+      "PackagePath": "staticwebassets\\favicon.png"
+    },
+    {
+      "Id": "C:\\dev\\app\\WebApp\\wwwroot\\icon-192.png",
+      "PackagePath": "staticwebassets\\icon-192.png"
+    },
+    {
+      "Id": "C:\\dev\\app\\WebApp\\wwwroot\\index.html",
+      "PackagePath": "staticwebassets\\index.html"
+    },
+    {
+      "Id": "C:\\dev\\app\\WebApp\\wwwroot\\js\\site.js",
+      "PackagePath": "staticwebassets\\js\\site.js"
+    },
+    {
+      "Id": "C:\\dev\\app\\WebApp\\wwwroot\\js\\theme.js",
+      "PackagePath": "staticwebassets\\js\\theme.js"
+    },
+    {
+      "Id": "C:\\dev\\app\\WebApp\\wwwroot\\manifest.json",
+      "PackagePath": "staticwebassets\\manifest.json"
+    },
+    {
+      "Id": "C:\\dev\\app\\WebApp\\wwwroot\\robots.txt",
+      "PackagePath": "staticwebassets\\robots.txt"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.WebApp.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.build.WebApp.props",
+      "PackagePath": "build\\WebApp.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildMultiTargeting.WebApp.props",
+      "PackagePath": "buildMultiTargeting\\WebApp.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildTransitive.WebApp.props",
+      "PackagePath": "buildTransitive\\WebApp.props"
+    }
+  ],
+  "ElementsToRemove": []
+}
