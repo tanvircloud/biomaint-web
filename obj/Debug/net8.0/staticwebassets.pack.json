@@ -25,10 +25,6 @@
       "PackagePath": "staticwebassets\\content\\faq.json"
     },
     {
-      "Id": "C:\\dev\\app\\WebApp\\wwwroot\\content\\industries.json",
-      "PackagePath": "staticwebassets\\content\\industries.json"
-    },
-    {
       "Id": "C:\\dev\\app\\WebApp\\wwwroot\\content\\landing.json",
       "PackagePath": "staticwebassets\\content\\landing.json"
     },
@@ -49,16 +45,8 @@
       "PackagePath": "staticwebassets\\content\\product.json"
     },
     {
-      "Id": "C:\\dev\\app\\WebApp\\wwwroot\\content\\security.json",
-      "PackagePath": "staticwebassets\\content\\security.json"
-    },
-    {
       "Id": "C:\\dev\\app\\WebApp\\wwwroot\\content\\testimonials.json",
       "PackagePath": "staticwebassets\\content\\testimonials.json"
-    },
-    {
-      "Id": "C:\\dev\\app\\WebApp\\wwwroot\\css\\app.css",
-      "PackagePath": "staticwebassets\\css\\app.css"
     },
     {
       "Id": "C:\\dev\\app\\WebApp\\wwwroot\\css\\bootstrap\\bootstrap.min.css",
@@ -83,10 +71,6 @@
     {
       "Id": "C:\\dev\\app\\WebApp\\wwwroot\\index.html",
       "PackagePath": "staticwebassets\\index.html"
-    },
-    {
-      "Id": "C:\\dev\\app\\WebApp\\wwwroot\\js\\site.js",
-      "PackagePath": "staticwebassets\\js\\site.js"
     },
     {
       "Id": "C:\\dev\\app\\WebApp\\wwwroot\\js\\theme.js",

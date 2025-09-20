@@ -1,59 +1,162 @@
 {
   "hero": {
-    "eyebrow": "CMMS for Healthcare",
-    "title": "Keep your hospital running without downtime",
-    "subtitle": "Manage work orders, preventive maintenance, assets, and inventory—secure and multi-tenant.",
-    "ctaText": "Book Demo",
-    "ctaHref": "/demo",
-    "secondaryCtaText": "Take a 2-min Tour",
-    "secondaryCtaHref": "/tour",
-    "image": "/assets/images/hero-dashboard.png"
+    "title": "Less downtime. Faster fixes. Complete records.",
+    "sub": "Plan PMs, run work orders, and track equipment & parts with full history—all in one CMMS.",
+    "primaryCta": { "label": "Try for Free", "href": "#demo" },
+    "secondaryCta": { "label": "Book a Demo", "href": "#tour" },
+    "note": "Mobile-first • QR/Barcode ready"
   },
-  "trust": {
-    "headline": "Built by biomedical engineers for biomedical teams",
-    "badges": [
-      { "icon": "shield-lock", "label": "Security" },
-      { "icon": "file-earmark-check", "label": "Audit Trail" },
-      { "icon": "clock", "label": "24/7 Support" }
+  "features": {
+    "title": "Everything you need in one CMMS — one place for every maintenance task",
+    "sub": "Unify requests, PM schedules, equipment records, inventory, vendors, and reporting so your team moves faster and sees the same truth.",
+    "cards": [
+      { "icon": "bi-tools", "title": "Work Orders", "desc": "Create, assign, and close jobs with clarity and SLAs." },
+      { "icon": "bi-calendar-check", "title": "Preventive Maintenance", "desc": "Time/usage-based PMs auto-schedule the right work." },
+      { "icon": "bi-clipboard-check", "title": "Requests", "desc": "Simple intake with live status for requesters." },
+      { "icon": "bi-cpu", "title": "Equipment Management", "desc": "Specs, docs, warranty and service history—organized." },
+      { "icon": "bi-box-seam", "title": "Parts & Inventory", "desc": "Stock levels, vendors, costs and consumption." },
+      { "icon": "bi-ui-checks", "title": "Checklists & Inspections", "desc": "Standardize rounds with ranges, photos, pass/fail." },
+      { "icon": "bi-graph-up", "title": "Reports & Analytics", "desc": "Downtime, MTTR/MTBF, PM rate, cost trends." },
+      { "icon": "bi-phone", "title": "Mobile App", "desc": "Scan QR, add photos, finish jobs on-site." }
     ]
   },
-  "features": [
-    { "title": "Work Orders", "subtitle": "Create, assign, close jobs in seconds.", "icon": "clipboard-check" },
-    { "title": "Preventive Maintenance", "subtitle": "Put PMs on autopilot and eliminate breakdowns.", "icon": "calendar-check" },
-    { "title": "Assets & Warranty", "subtitle": "Track full lifecycle with history & warranty alerts.", "icon": "hospital" },
-    { "title": "Inventory & Parts", "subtitle": "Stay stocked and cut costs on critical spares.", "icon": "archive" },
-    { "title": "Reports & Dashboards", "subtitle": "Monitor downtime, MTTR, and costs in real time.", "icon": "graph-up" },
-    { "title": "Mobile CMMS App", "subtitle": "Raise requests, capture photos, and close jobs on the go.", "icon": "phone" }
-  ],
-  "crossPlatform": {
+  "mobile": {
     "title": "Work anywhere — desktop, web, or mobile",
-    "subtitle": "BioMaint runs on Windows desktop, modern browsers, and mobile apps (Flutter) for Android & iOS.",
-    "desktopImage": "/assets/images/dashboard.png",
-    "mobileImage": "/assets/images/mobile.png"
-  },
-  "healthcareEssentials": [
-    { "title": "Audit-Ready Records", "subtitle": "PM logs, calibration certificates, and CAPA notes ready in minutes.", "icon": "file-medical" },
-    { "title": "LIS & Device Integration", "subtitle": "ASTM/HL7 support for analyzers and IoT-enabled meters.", "icon": "diagram-3" },
-    { "title": "Multi-site Visibility", "subtitle": "Compare performance across ICU, OT, Labs, and Facilities.", "icon": "buildings" }
-  ],
-  "analytics": {
-    "title": "Analytics & Reporting",
-    "subtitle": "Track downtime, MTTR, PM compliance, and costs. Export to CSV/PDF or schedule auto-reports."
-  },
-  "support": {
-    "title": "Implementation & Support",
-    "subtitle": "Start in days, not months. Import spreadsheets, use templates, and rely on 24/7 WhatsApp/Email support."
-  },
-  "pricing": [
-    { "title": "Starter", "subtitle": "For small hospitals & clinics" },
-    { "title": "Team", "subtitle": "For growing maintenance departments" },
-    { "title": "Enterprise", "subtitle": "Full-scale hospitals & multi-sites" }
-  ],
-  "footer": {
-    "copyright": "© 2025 BioMaint CMMS",
-    "links": [
-      { "text": "Google Play", "href": "#" },
-      { "text": "App Store", "href": "#" }
+    "sub": "Scan equipment, pull history, capture photos and notes, log time, and close jobs on-site.",
+    "primaryCta": { "label": "See Mobile Features", "href": "#tour" },
+    "secondaryCta": { "label": "Get Android app", "href": "#" },
+    "badges": ["QR / Barcode", "Photos & Notes", "Signatures", "Offline-ready"],
+    "micro": [
+      { "icon": "bi-qr-code-scan", "title": "Instant QR Scan", "sub": "Find the exact asset" },
+      { "icon": "bi-wifi-off", "title": "Works Offline", "sub": "Syncs when online" },
+      { "icon": "bi-camera", "title": "Photos & Notes", "sub": "Prove work with media" }
+    ],
+    "platforms": [
+      { "icon": "bi-windows", "label": "Windows", "class": "pi-win" },
+      { "icon": "bi-android2", "label": "Android", "class": "pi-and" },
+      { "icon": "bi-apple", "label": "iOS", "class": "pi-ios" },
+      { "icon": "bi-globe2", "label": "Web", "class": "pi-web" }
     ]
+  },
+  "analytics": {
+    "title": "Know what’s working. Fix what’s not.",
+    "sub": "Track downtime, MTTR/MTBF, PM completion, and cost trends. Export or schedule auto-reports for your team.",
+    "metrics": [
+      { "icon": "bi-activity", "title": "Downtime", "note": "See spikes by asset, line, or site." },
+      {
+        "icon": "bi-hourglass-split",
+        "title": "MTTR/MTBF",
+        "note": "Monitor repair speed & reliability.",
+        "accent": {
+          "ringA": "rgba(167,139,250,.55)",
+          "ringB": "rgba(94,234,212,.55)",
+          "iconStyle": "background:rgba(96,165,250,.12); color:var(--blue)"
+        }
+      },
+      {
+        "icon": "bi-bar-chart",
+        "title": "PM Rate",
+        "note": "Completion & compliance trend.",
+        "accent": {
+          "ringA": "rgba(244,114,182,.55)",
+          "ringB": "rgba(16,185,129,.55)",
+          "iconStyle": "background:rgba(244,114,182,.12); color:var(--pink)"
+        }
+      }
+    ]
+  },
+  "kpis": {
+    "title": "Teams see results in weeks",
+    "sub": "Real outcomes customers report after going live with BioMaint.",
+    "items": [
+      { "value": "35%", "text": "more productive wrench time" },
+      { "value": "20%", "text": "reduction in unplanned downtime", "style": "color:#60A5FA" },
+      { "value": "15%", "text": "longer average asset life" }
+    ]
+  },
+  "testimonials": {
+    "titleHtml": "Satisfied customers. <em>Successful</em> stories.",
+    "sub": "Here’s how teams use BioMaint to move faster and prove results.",
+    "items": [
+      {
+        "name": "Samir Rahman",
+        "role": "Operations Lead • Delta Foods",
+        "img": "https://i.pravatar.cc/88?img=12",
+        "quote": "“All requests, PMs, and parts live in one system now. Our weekly downtime review dropped from hours to minutes.”"
+      },
+      {
+        "name": "Elaine Costa",
+        "role": "Maintenance Manager • Urban Residences",
+        "img": "https://i.pravatar.cc/88?img=36",
+        "quote": "“Techs close jobs from the floor with photos and checklists. We finally trust our history and can defend our numbers.”"
+      },
+      {
+        "name": "Victor Nguyen",
+        "role": "Facilities Director • Sunrise Group",
+        "img": "https://i.pravatar.cc/88?img=5",
+        "quote": "“Scheduling PMs across sites and coordinating with vendors is finally painless.”"
+      },
+      {
+        "name": "Lana Ibrahim",
+        "role": "Biomedical Supervisor • City Hospital",
+        "img": "https://i.pravatar.cc/88?img=21",
+        "quote": "“Calibration, certificates, and change history are ready during audits—no scrambling.”"
+      }
+    ]
+  },
+  "howItWorks": {
+    "title": "How it works",
+    "steps": [
+      { "icon": "bi-qr-code-scan", "title": "1. Capture", "desc": "Submit a request or scan a QR to pull the exact equipment." },
+      { "icon": "bi-calendar2-week", "title": "2. Plan", "desc": "PM rules and templates create and schedule work automatically." },
+      { "icon": "bi-check2-square", "title": "3. Resolve", "desc": "Technicians complete jobs with parts, photos, notes & signatures." }
+    ]
+  },
+  "solutions": {
+    "title": "Solutions for every team",
+    "tabs": [
+      {
+        "id": "health",
+        "label": "Healthcare Facilities",
+        "cards": [
+          { "title": "Biomedical PMs", "desc": "Time/usage schedules for critical equipment." },
+          { "title": "Calibration history", "desc": "Certificates, limits, and sign-offs in one place." },
+          { "title": "Multi-site visibility", "desc": "ICU, OT, Labs, and facilities in a single view." }
+        ]
+      },
+      {
+        "id": "pharma",
+        "label": "Pharmaceutical & Labs",
+        "cards": [
+          { "title": "GxP-friendly PMs", "desc": "Evidence-driven schedules and approvals." },
+          { "title": "Change history", "desc": "Know who did what and when—instantly." },
+          { "title": "Lab equipment records", "desc": "Ranges, trends, and documentation together." }
+        ]
+      },
+      {
+        "id": "vendors",
+        "label": "Vendors & Service Providers",
+        "cards": [
+          { "title": "Invite & assign", "desc": "Share jobs, scope, and priorities with your vendors." },
+          { "title": "SLA tracking", "desc": "Parts, time, photos, and signatures as proof of work." },
+          { "title": "Scoped access", "desc": "Vendors work like your team—only on their jobs." }
+        ]
+      },
+      {
+        "id": "general",
+        "label": "General Maintenance",
+        "cards": [
+          { "title": "Unified requests", "desc": "Everyone uses the same intake and status." },
+          { "title": "Reusable templates", "desc": "Standard PMs you can share across sites." },
+          { "title": "Inventory control", "desc": "Know what’s on hand and where it moves." }
+        ]
+      }
+    ]
+  },
+  "finalCta": {
+    "title": "Ready to modernize maintenance?",
+    "sub": "Try BioMaint free or book a quick demo.",
+    "primary": { "label": "Try for Free", "href": "#demo" },
+    "secondary": { "label": "Book a Demo", "href": "#tour" }
   }
 }

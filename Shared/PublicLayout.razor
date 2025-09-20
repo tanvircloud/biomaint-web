@@ -1,11 +1,9 @@
 @inherits LayoutComponentBase
 
+<WebApp.Shared.Header />
+
 <main class="bm-main">
   @Body
 </main>
 
-@code {
-    // Removed navInit JS interop since Bootstrap collapse handles navbar toggling
-    // Keeping JS injection here in case you add theme or other interop later
-    [Inject] IJSRuntime JS { get; set; } = default!;
-}
+<WebApp.Shared.Footer />

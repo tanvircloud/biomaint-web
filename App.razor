@@ -1,27 +1,27 @@
 ﻿@using Microsoft.AspNetCore.Components.Routing
 
 <Router AppAssembly="@typeof(App).Assembly">
-    <Found Context="routeData">
-        <RouteView RouteData="@routeData" DefaultLayout="@SelectLayout(routeData)" />
-    </Found>
-    <NotFound>
-        <LayoutView Layout="@typeof(WebApp.Shared.PublicLayout)">
-            <div class="container py-5">Page not found.</div>
-        </LayoutView>
-    </NotFound>
+  <Found Context="routeData">
+    <RouteView RouteData="@routeData" DefaultLayout="@SelectLayout(routeData)" />
+  </Found>
+  <NotFound>
+    <LayoutView Layout="@typeof(WebApp.Shared.PublicLayout)">
+      <div class="container py-5">Page not found.</div>
+    </LayoutView>
+  </NotFound>
 </Router>
 
 @code {
-    private Type SelectLayout(RouteData routeData)
-    {
-        var ns = routeData.PageType.Namespace ?? string.Empty;
+  private Type SelectLayout(RouteData routeData)
+  {
+    var ns = routeData.PageType.Namespace ?? string.Empty;
 
-        if (ns.Contains("WebApp.Pages.Public"))
-            return typeof(WebApp.Shared.PublicLayout);
+    if (ns.Contains("WebApp.Pages.Public"))
+      return typeof(WebApp.Shared.PublicLayout);
 
-        if (ns.Contains("WebApp.Pages.App"))
-            return typeof(WebApp.Shared.MainLayout);
+    if (ns.Contains("WebApp.Pages.App"))
+      return typeof(WebApp.Shared.MainLayout);
 
-        return typeof(WebApp.Shared.PublicLayout);
-    }
+    return typeof(WebApp.Shared.PublicLayout);
+  }
 }

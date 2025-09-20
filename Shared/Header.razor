@@ -1,27 +1,123 @@
+@using WebApp.Models
+@inject WebApp.Services.ContentService Content
 @inject IJSRuntime JS
 
-@code {
-    private Task CycleTheme() => JS.InvokeVoidAsync("BioTheme.cycle").AsTask();
-}
-
-<nav class="navbar navbar-expand-lg bm-header">
+<nav class="navbar navbar-expand-lg sticky-top">
   <div class="container">
-    <a class="navbar-brand d-flex align-items-center" href="/">
-      <img class="brand-logo me-2" src="/assets/logos/mark.png" alt="logo" height="28" />
-      <span class="brand-text">BioMaint</span>
+    <!-- Brand -->
+    <a class="navbar-brand fw-bold" href="@NormalizeHref(_cfg?.Brand?.Href)">
+      @_cfg?.Brand?.Text
     </a>
 
-    <!-- Theme toggle -->
-    <button class="btn btn-sm ms-auto me-2" @onclick="CycleTheme">Theme</button>
+    <!-- Mobile hamburger -->
+    <button id="bmToggler"
+            class="navbar-toggler bm-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#navbarNav"
+            aria-controls="navbarNav"
+            aria-expanded="false"
+            aria-label="Toggle navigation">
+      <span class="bm-burger"></span>
+    </button>
 
-    <!-- Nav links -->
-    <div class="collapse navbar-collapse show">
-      <ul class="navbar-nav ms-auto">
-        <li class="nav-item"><a class="nav-link" href="/features">Features</a></li>
-        <li class="nav-item"><a class="nav-link" href="/pricing">Pricing</a></li>
-        <li class="nav-item"><a class="nav-link" href="/about">About</a></li>
-        <li class="nav-item ms-2"><a class="btn btn-accent" href="/login">Sign in</a></li>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <!-- LEFT: groups (dropdowns or direct links) -->
+      <ul class="navbar-nav me-auto">
+        @if (_cfg?.Groups is not null && _cfg.Groups.Count > 0)
+        {
+          foreach (var g in _cfg.Groups)
+          {
+            var hasChildren = g.Items is not null && g.Items.Count > 0;
+            if (hasChildren)
+            {
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle"
+                   href="#"
+                   data-bs-toggle="dropdown"
+                   aria-expanded="false">@g.Label</a>
+                <ul class="dropdown-menu">
+                  @foreach (var it in g.Items!)
+                  {
+                    var href = NormalizeHref(it.Href);
+                    <li>
+                      <a class="dropdown-item"
+                         href="@href"
+                         target="@(it.External ? "_blank" : null)"
+                         rel="@(it.External ? "noopener" : null)">
+                        @it.Label
+                      </a>
+                    </li>
+                  }
+                </ul>
+              </li>
+            }
+            else if (!string.IsNullOrWhiteSpace(g.Href))
+            {
+              <li class="nav-item">
+                <a class="nav-link" href="@NormalizeHref(g.Href)">@g.Label</a>
+              </li>
+            }
+            <!-- If neither Items nor Href, skip silently (no hardcoded fallback) -->
+          }
+        }
       </ul>
+
+      <!-- RIGHT: theme + auth + cta (all from JSON; omit if absent) -->
+      <div class="d-flex align-items-center gap-2">
+        <button class="theme-btn focus-ring" id="themeBtn" aria-label="Toggle theme">
+          <i class="bi bi-moon-stars" id="themeIcon"></i>
+        </button>
+
+        @if (!string.IsNullOrWhiteSpace(_cfg?.Auth?.LoginHref))
+        {
+          <a class="btn btn-outline-light" href="@NormalizeHref(_cfg!.Auth!.LoginHref)">
+            @_cfg!.Auth!.LoginText
+          </a>
+        }
+
+        @if (!string.IsNullOrWhiteSpace(_cfg?.Cta?.Href))
+        {
+          <a class="btn btn-primary" href="@NormalizeHref(_cfg!.Cta!.Href)">
+            @_cfg!.Cta!.Text
+          </a>
+        }
+      </div>
     </div>
   </div>
 </nav>
+
+@code {
+  private HeaderConfig? _cfg;
+
+  protected override async Task OnInitializedAsync()
+  {
+    try
+    {
+      // Pulls header from JSON (landing/header/nav.header per your ContentService)
+      _cfg = await Content.GetHeaderConfigAsync();
+    }
+    catch
+    {
+      _cfg = null; // render nothing if JSON missing; no hardcoded fallbacks
+    }
+  }
+
+  protected override async Task OnAfterRenderAsync(bool firstRender)
+  {
+    if (!firstRender) return;
+    try
+    {
+      // ensure burger ↔ X sync & smooth anchors after Blazor render
+      await JS.InvokeVoidAsync("BioUI.init");
+    }
+    catch { /* theme.js not loaded yet — safe to ignore */ }
+  }
+
+  private static string? NormalizeHref(string? href)
+  {
+    if (string.IsNullOrWhiteSpace(href)) return href;
+    // convert "/#section" → "#section" so theme.js smooth-scroll works
+    return href.StartsWith("/#") ? href[1..] : href;
+  }
+}

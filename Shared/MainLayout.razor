@@ -1,25 +1,8 @@
 @inherits LayoutComponentBase
 
-<div class="app-layout d-flex">
-    <!-- Sidebar -->
-    <aside class="bg-dark text-light p-3" style="width: 250px;">
-        <h5 class="mb-3">CMMS Menu</h5>
-        <nav class="nav flex-column">
-            <a class="nav-link text-light" href="/app/dashboard">Dashboard</a>
-            <a class="nav-link text-light" href="/app/assets">Assets</a>
-            <a class="nav-link text-light" href="/app/workorders">Work Orders</a>
-            <a class="nav-link text-light" href="/app/inventory">Inventory</a>
-        </nav>
-    </aside>
-
-    <!-- Main Content -->
-    <div class="flex-fill">
-        <header class="bg-light border-bottom py-2 px-3">
-            <span class="fw-bold">BioMaint CMMS</span>
-        </header>
-
-        <main class="p-4">
-            @Body
-        </main>
-    </div>
+<div class="app-shell d-flex">
+  <!-- TODO: your left nav / top bar for the signed-in app -->
+  <main class="flex-grow-1">
+    @Body
+  </main>
 </div>

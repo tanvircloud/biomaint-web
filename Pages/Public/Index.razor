@@ -1,310 +1,365 @@
 @page "/"
+@layout PublicLayout
 @using WebApp.Models
-@using System.Net.Http.Json
-@inject HttpClient Http
+@using System.Text.Json
+@inject WebApp.Services.ContentService Content
 
-<!-- Navbar -->
-<header class="bm-header navbar navbar-expand-lg navbar-dark bg-dark sticky-top" role="navigation" aria-label="Main">
-  <div class="container">
-    <a class="navbar-brand d-flex align-items-center" href="/">
-      <img src="favicon.png" class="brand-logo me-2" alt="BioMaint logo" />
-      <span class="brand-text">BioMaint</span>
-    </a>
+@code {
+    LandingModel? M;
 
-    <button class="navbar-toggler" type="button"
-            data-bs-toggle="collapse" data-bs-target="#navbarNav"
-            aria-controls="navbarNav" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
+    // Extra JSON bags (local to this page; no new shared models)
+    record Metric(string Icon, string Title, string? Note, string? Desc);
+    List<Metric> Metrics = new();
 
-    <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav me-auto">
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" id="navProduct" role="button" data-bs-toggle="dropdown">Product</a>
-          <ul class="dropdown-menu" aria-labelledby="navProduct">
-            <li><a class="dropdown-item" href="/product/work-orders">Work Orders</a></li>
-            <li><a class="dropdown-item" href="/product/pm">Preventive Maintenance</a></li>
-            <li><a class="dropdown-item" href="/product/assets">Assets & Warranty</a></li>
-            <li><a class="dropdown-item" href="/product/inventory">Inventory & Parts</a></li>
-            <li><a class="dropdown-item" href="/product/reports">Reports & Dashboards</a></li>
-            <li><a class="dropdown-item" href="/product/mobile">Mobile CMMS App</a></li>
-          </ul>
-        </li>
+    record HowStep(string Icon, string Title, string? Desc);
+    List<HowStep> How = new();
 
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" id="navSolutions" role="button" data-bs-toggle="dropdown">Solutions</a>
-          <ul class="dropdown-menu" aria-labelledby="navSolutions">
-            <li><a class="dropdown-item" href="/solutions/hospitals">Hospitals</a></li>
-            <li><a class="dropdown-item" href="/solutions/clinics">Clinics</a></li>
-          </ul>
-        </li>
+    protected override async Task OnInitializedAsync()
+    {
+        M = await Content.GetLandingModelAsync();
 
-        <li class="nav-item"><a class="nav-link" href="/enterprise">Enterprise</a></li>
+        // Read landing.json directly for analytics.metrics + howItWorks
+        using var doc = await Content.GetAsync<JsonDocument>("landing");
+        if (doc is null) return;
 
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" id="navResources" role="button" data-bs-toggle="dropdown">Resources</a>
-          <ul class="dropdown-menu" aria-labelledby="navResources">
-            <li><a class="dropdown-item" href="/blog">Blog</a></li>
-            <li><a class="dropdown-item" href="/faq">FAQ</a></li>
-          </ul>
-        </li>
+        var root = doc.RootElement;
 
-        <li class="nav-item"><a class="nav-link" href="/pricing">Pricing</a></li>
-      </ul>
+        static string? Str(JsonElement e, string key)
+            => e.TryGetProperty(key, out var v) && v.ValueKind == JsonValueKind.String ? v.GetString() : null;
 
-      <div class="d-flex gap-2">
-        <a class="btn btn-outline-light" href="/login">Log in</a>
-        <a class="btn btn-primary" href="/demo">Book Demo</a>
-      </div>
-    </div>
-  </div>
-</header>
+        static IEnumerable<JsonElement> Arr(JsonElement e, string key)
+            => e.TryGetProperty(key, out var v) && v.ValueKind == JsonValueKind.Array ? v.EnumerateArray() : Enumerable.Empty<JsonElement>();
 
-@if (!string.IsNullOrEmpty(errorMessage))
-{
-  <!-- Fallback: Static Hero when JSON is missing -->
-  <section class="text-center py-5">
-    <h1 class="fw-bold">Welcome to BioMaint</h1>
-    <p class="lead">Modern CMMS for healthcare assets, work orders, and more.</p>
-    <div class="d-flex justify-content-center gap-3 mt-3">
-      <a class="btn btn-primary btn-lg" href="/demo">Book Demo</a>
-      <a class="btn btn-outline-light btn-lg" href="/login">Get Started</a>
-    </div>
-  </section>
+        if (root.TryGetProperty("analytics", out var analytics) && analytics.ValueKind == JsonValueKind.Object)
+        {
+            foreach (var m in Arr(analytics, "metrics"))
+            {
+                Metrics.Add(new Metric(
+                    Icon : Str(m, "icon")  ?? "bi-activity",
+                    Title: Str(m, "title") ?? "",
+                    Note : Str(m, "note"),
+                    Desc : Str(m, "desc")
+                ));
+            }
+        }
+
+        if (root.TryGetProperty("howItWorks", out var how) && how.ValueKind == JsonValueKind.Object)
+        {
+            foreach (var s in Arr(how, "steps"))
+            {
+                How.Add(new HowStep(
+                    Icon : Str(s, "icon")  ?? "bi-check2-square",
+                    Title: Str(s, "title") ?? "",
+                    Desc : Str(s, "desc")
+                ));
+            }
+        }
+    }
 }
-else if (landing is null)
+
+@if (M is null)
 {
-  <div class="text-center py-5">
-    <div class="spinner-border text-primary" role="status"></div>
-    <p class="mt-3">Loading…</p>
-  </div>
+  <div class="container py-5 text-center text-muted">Loading…</div>
 }
 else
 {
-  <!-- Hero -->
-  <section class="text-center py-5">
-    @if (!string.IsNullOrWhiteSpace(landing.Hero?.Eyebrow))
-    {
-      <h5 class="text-success">@landing.Hero.Eyebrow</h5>
-    }
-    <h1 class="fw-bold">@landing.Hero?.Title</h1>
-    @if (!string.IsNullOrWhiteSpace(landing.Hero?.Subtitle))
-    {
-      <p class="lead">@landing.Hero.Subtitle</p>
-    }
-
-    <div class="d-flex justify-content-center gap-3 mt-3">
-      @if (!string.IsNullOrWhiteSpace(landing.Hero?.CtaText))
-      {
-        <a class="btn btn-primary btn-lg" href="@landing.Hero.CtaHref">@landing.Hero.CtaText</a>
-      }
-      @if (!string.IsNullOrWhiteSpace(landing.Hero?.SecondaryCtaText))
-      {
-        <a class="btn btn-outline-light btn-lg" href="@landing.Hero.SecondaryCtaHref">@landing.Hero.SecondaryCtaText</a>
-      }
-    </div>
-
-    @if (!string.IsNullOrWhiteSpace(landing.Hero?.Image))
-    {
-      <img src="@landing.Hero.Image"
-           alt="@(string.IsNullOrWhiteSpace(landing.Hero.ImageAlt) ? "Hero image" : landing.Hero.ImageAlt)"
-           class="img-fluid mt-4 rounded" />
-    }
-  </section>
-
-  <!-- Trust -->
-  <section class="bg-dark text-light py-5 text-center">
+  <!-- ================= HERO ================= -->
+  <section class="hero text-center text-lg-start">
     <div class="container">
-      @if (!string.IsNullOrWhiteSpace(landing.Trust?.Headline))
-      {
-        <p class="mb-3">@landing.Trust.Headline</p>
-      }
-      <div class="d-flex justify-content-center gap-4 flex-wrap">
-        @if (landing.Trust?.Badges is not null)
-        {
-          @foreach (var badge in landing.Trust.Badges)
+      <div class="row align-items-center g-5">
+        <div class="col-lg-6">
+          <h1 class="display-5 fw-bold">@M.Hero.Title</h1>
+          @if (!string.IsNullOrWhiteSpace(M.Hero.Subtitle))
           {
-            <span class="d-inline-flex align-items-center gap-2">
-              <i class="@Bi(badge.Icon)" aria-hidden="true"></i>
-              <span>@badge.Label</span>
-            </span>
+            <p class="lead section-sub">@M.Hero.Subtitle</p>
           }
-        }
-      </div>
-    </div>
-  </section>
-
-  <!-- Features -->
-  <section class="py-5 section-bg">
-    <div class="container">
-      <h2 class="mb-4 text-center">Core Features</h2>
-      <div class="row g-4">
-        @if (landing.Features is not null)
-        {
-          @foreach (var feature in landing.Features)
+          <div class="d-flex gap-3 justify-content-center justify-content-lg-start">
+            @if (!string.IsNullOrWhiteSpace(M.Hero.CtaText))
+            {
+              <a class="btn btn-primary btn-lg" href="@M.Hero.CtaHref">@M.Hero.CtaText</a>
+            }
+            @if (!string.IsNullOrWhiteSpace(M.Hero.SecondaryCtaText))
+            {
+              <a class="btn btn-outline-light btn-lg" href="@M.Hero.SecondaryCtaHref">@M.Hero.SecondaryCtaText</a>
+            }
+          </div>
+          @if (!string.IsNullOrWhiteSpace(M.Hero.ImageAlt))
           {
-            <div class="col-md-4 text-center">
-              <div class="feature-icon mb-2 fs-2">
-                <i class="@Bi(feature.Icon)" aria-hidden="true"></i>
-              </div>
-              <h5>@feature.Title</h5>
-              @if (!string.IsNullOrWhiteSpace(feature.Subtitle))
-              {
-                <p>@feature.Subtitle</p>
-              }
-              @if (!string.IsNullOrWhiteSpace(feature.Link))
-              {
-                <a href="@feature.Link" class="small text-primary">Learn more →</a>
-              }
-            </div>
+            <p class="muted mt-3">@M.Hero.ImageAlt</p>
           }
-        }
-      </div>
-    </div>
-  </section>
-
-  <!-- Cross-Platform -->
-  <section class="py-5 bg-dark text-light">
-    <div class="container text-center">
-      <h2>@landing.CrossPlatform?.Title</h2>
-      @if (!string.IsNullOrWhiteSpace(landing.CrossPlatform?.Subtitle))
-      {
-        <p>@landing.CrossPlatform.Subtitle</p>
-      }
-      <div class="row justify-content-center g-4 mt-4">
-        <div class="col-md-4">
-          <img src="@landing.CrossPlatform?.MobileImage" class="img-fluid rounded" alt="Mobile app" />
         </div>
-        <div class="col-md-6">
-          <img src="@landing.CrossPlatform?.DesktopImage" class="img-fluid rounded" alt="Desktop dashboard" />
+
+        <div class="col-lg-6">
+          <div class="mock ratio ratio-16x9 d-flex align-items-center justify-content-center">
+            <span class="muted">[Dashboard Mockup]</span>
+          </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Healthcare Essentials -->
-  <section class="py-5">
-    <div class="container text-center">
-      <h2 class="mb-4">Healthcare Essentials</h2>
+  <!-- =============== FEATURES =============== -->
+  <section id="features">
+    <div class="container">
+      <h2 class="text-center mb-2">Everything you need in one CMMS — one place for every maintenance task</h2>
+      <p class="section-sub text-center mb-5">
+        Unify requests, PM schedules, equipment records, inventory, vendors, and reporting so your team moves faster and sees the same truth.
+      </p>
+
       <div class="row g-4">
-        @if (landing.HealthcareEssentials is not null)
+        @foreach (var c in M.Features)
         {
-          @foreach (var item in landing.HealthcareEssentials)
-          {
-            <div class="col-md-4">
-              <div class="feature-icon mb-2 fs-2">
-                <i class="@Bi(item.Icon)" aria-hidden="true"></i>
-              </div>
-              <h5>@item.Title</h5>
-              @if (!string.IsNullOrWhiteSpace(item.Subtitle))
+          <div class="col-sm-6 col-lg-3">
+            <div class="feature-card h-100">
+              @if (!string.IsNullOrWhiteSpace(c.Icon))
               {
-                <p>@item.Subtitle</p>
+                <div class="feature-icon"><i class="bi @c.Icon"></i></div>
+              }
+              <h6>@c.Title</h6>
+              @if (!string.IsNullOrWhiteSpace(c.Subtitle))
+              {
+                <p class="muted mb-0">@c.Subtitle</p>
               }
             </div>
-          }
+          </div>
         }
       </div>
     </div>
   </section>
 
-  <!-- Analytics -->
-  <section class="py-5 section-bg text-center">
+  <!-- ============ MOBILE / CROSS-PLATFORM ============ -->
+  <section id="mobile" class="orb-bg">
     <div class="container">
-      <h2>@landing.Analytics?.Title</h2>
-      @if (!string.IsNullOrWhiteSpace(landing.Analytics?.Subtitle))
-      {
-        <p class="lead">@landing.Analytics.Subtitle</p>
-      }
-    </div>
-  </section>
+      <div class="row g-4 align-items-center">
+        <div class="col-lg-6 reveal">
+          <h2>@M.CrossPlatform.Title</h2>
+          <p class="section-sub">@M.CrossPlatform.Subtitle</p>
 
-  <!-- Support -->
-  <section class="py-5 text-center">
-    <div class="container">
-      <h2>@landing.Support?.Title</h2>
-      @if (!string.IsNullOrWhiteSpace(landing.Support?.Subtitle))
-      {
-        <p class="lead">@landing.Support.Subtitle</p>
-      }
-    </div>
-  </section>
-
-  <!-- Pricing -->
-  <section class="py-5 bg-dark text-light">
-    <div class="container">
-      <h2 class="mb-4 text-center">Pricing</h2>
-      <div class="row g-4">
-        @if (landing.Pricing is not null)
-        {
-          @foreach (var plan in landing.Pricing)
+          @if (M.HealthcareEssentials?.Count > 0)
           {
+            <div class="micro-features" aria-label="Mobile highlights">
+              @foreach (var e in M.HealthcareEssentials)
+              {
+                <div class="micro">
+                  @if (!string.IsNullOrWhiteSpace(e.Icon)) { <i class="bi @e.Icon"></i> }
+                  <div>
+                    <div class="fw-semibold">@e.Title</div>
+                    @if (!string.IsNullOrWhiteSpace(e.Subtitle)) { <small>@e.Subtitle</small> }
+                  </div>
+                </div>
+              }
+            </div>
+          }
+
+          <div class="d-flex gap-3 mt-3">
+            @if (!string.IsNullOrWhiteSpace(M.Hero.SecondaryCtaText))
+            {
+              <a class="btn btn-primary" href="@M.Hero.SecondaryCtaHref">See Mobile Features</a>
+            }
+            <a class="btn btn-outline-light" href="#">Get Android app</a>
+          </div>
+        </div>
+
+        <div class="col-lg-6 reveal" style="transition-delay:.08s">
+          <div class="glow-card ratio ratio-16x9 floaty d-flex align-items-center justify-content-center" aria-label="Supported platforms">
+            <div class="platform-icons">
+              <div class="platform-icon pi-win"><i class="bi bi-windows"></i><span>Windows</span></div>
+              <div class="platform-icon pi-and"><i class="bi bi-android2"></i><span>Android</span></div>
+              <div class="platform-icon pi-ios"><i class="bi bi-apple"></i><span>iOS</span></div>
+              <div class="platform-icon pi-web"><i class="bi bi-globe2"></i><span>Web</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================== ANALYTICS ================== -->
+  <section>
+    <div class="container text-center">
+      <h2 class="mb-3 reveal">@M.Analytics.Title</h2>
+      @if (!string.IsNullOrWhiteSpace(M.Analytics.Subtitle))
+      {
+        <p class="section-sub reveal" style="transition-delay:.05s">@M.Analytics.Subtitle</p>
+      }
+      <div class="row g-4 mt-2">
+        @for (var i = 0; i < Metrics.Count; i++)
+        {
+          var m = Metrics[i];
+          var delay = i == 0 ? "" : (i == 1 ? "transition-delay:.06s" : "transition-delay:.1s");
+          <div class="col-md-4 reveal" style="@delay">
+            <div class="metric-card h-100">
+              <div class="metric-title">
+                <div class="metric-ico"><i class="bi @m.Icon"></i></div>
+                <strong>@m.Title</strong>
+              </div>
+              <!-- Static sparkline (visual accent) -->
+              <svg class="sparkline" viewBox="0 0 100 30" preserveAspectRatio="none" aria-hidden="true">
+                <polyline fill="none" stroke="currentColor" stroke-width="2" opacity=".28" points="0,22 16,24 32,20 48,23 64,17 80,19 100,14" />
+                <polyline fill="none" stroke="var(--brand)" stroke-width="2.2" points="0,26 15,24 30,26 45,21 60,18 75,15 90,16 100,12" />
+              </svg>
+              @if (!string.IsNullOrWhiteSpace(m.Note))
+              {
+                <div class="metric-note">@m.Note</div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- ================== KPI BAND ================== -->
+  @if (M.Kpis is not null && M.Kpis.Count > 0)
+  {
+    <section class="kpi-band">
+      <div class="container text-center">
+        <h2 class="mb-2">Teams see results in weeks</h2>
+        <p class="section-sub">Real outcomes customers report after going live with BioMaint.</p>
+
+        <div class="row g-4 mt-2">
+          @foreach (var k in M.Kpis)
+          {
+            <div class="col-lg-4">
+              <div class="kpi-card h-100">
+                <div class="kpi-value" style="@k.Style">@k.Value</div>
+                <div class="kpi-text">@k.Text</div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </section>
+  }
+
+  <!-- ============== TESTIMONIALS ============== -->
+  @if (M.Testimonials is not null && M.Testimonials.Items?.Count > 0)
+  {
+    <section>
+      <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h2 class="testi-head m-0">@((MarkupString)M.Testimonials.TitleHtml)</h2>
+          <div class="testi-ctrl">
+            <button class="ctrl-btn" id="tPrev" aria-label="Previous"><i class="bi bi-arrow-left"></i></button>
+            <button class="ctrl-btn" id="tNext" aria-label="Next"><i class="bi bi-arrow-right"></i></button>
+          </div>
+        </div>
+        @if (!string.IsNullOrWhiteSpace(M.Testimonials.Subtitle))
+        {
+          <p class="section-sub mb-3">@M.Testimonials.Subtitle</p>
+        }
+        <div class="testi-wrap">
+          <div class="testi-track" id="testiTrack">
+            @foreach (var t in M.Testimonials.Items)
+            {
+              <article class="testi-card">
+                <div class="testi-user">
+                  <img src="@t.Img" alt="@t.Name" />
+                  <div>
+                    <strong>@t.Name</strong>
+                    <div class="muted">@t.Role</div>
+                  </div>
+                </div>
+                <p>@t.Quote</p>
+              </article>
+            }
+          </div>
+        </div>
+      </div>
+    </section>
+  }
+
+  <!-- ================= HOW IT WORKS ================= -->
+  @if (How.Count > 0)
+  {
+    <section>
+      <div class="container">
+        <h2 class="text-center mb-5">How it works</h2>
+        <div class="row g-4">
+          @for (var i = 0; i < How.Count; i++)
+          {
+            var s = How[i];
             <div class="col-md-4">
-              <div class="p-4 border rounded text-center h-100">
-                <h5>@plan.Title</h5>
-                @if (!string.IsNullOrWhiteSpace(plan.Subtitle))
+              <div class="solution-card text-center h-100">
+                <div class="feature-icon mx-auto"><i class="bi @s.Icon"></i></div>
+                <h6>@(i+1). @s.Title</h6>
+                @if (!string.IsNullOrWhiteSpace(s.Desc))
                 {
-                  <p>@plan.Subtitle</p>
+                  <p class="muted mb-0">@s.Desc</p>
                 }
               </div>
             </div>
           }
-        }
-      </div>
-    </div>
-  </section>
-
-  <!-- Footer -->
-  <footer class="bm-footer bg-dark text-light py-4">
-    <div class="container">
-      <div class="footer-grid">
-        <div>
-          <div class="footer-title">BioMaint</div>
-          <p class="text-muted mb-0">Modern CMMS for healthcare.</p>
-        </div>
-        <div>
-          <div class="footer-title">Product</div>
-          <a class="footer-link" href="/product/work-orders">Work Orders</a>
-          <a class="footer-link" href="/product/pm">Preventive Maintenance</a>
-          <a class="footer-link" href="/product/reports">Reports</a>
-        </div>
-        <div>
-          <div class="footer-title">Company</div>
-          <a class="footer-link" href="/about">About</a>
-          <a class="footer-link" href="/blog">Blog</a>
-        </div>
-        <div>
-          <div class="footer-title">Legal</div>
-          <a class="footer-link" href="/terms">Terms</a>
-          <a class="footer-link" href="/privacy">Privacy</a>
         </div>
       </div>
-    </div>
-  </footer>
-}
-
-@code {
-  private LandingModel? landing;
-  private string? errorMessage;
-
-  private const string ContentPath = "content/landing.json";
-
-  protected override async Task OnInitializedAsync()
-  {
-    try
-    {
-      landing = await Http.GetFromJsonAsync<LandingModel>(ContentPath);
-      if (landing is null)
-      {
-        errorMessage = $"No data in {ContentPath}.";
-      }
-    }
-    catch (Exception ex)
-    {
-      errorMessage = $"Could not load {ContentPath}. ({ex.Message})";
-      Console.Error.WriteLine($"Failed to load {ContentPath}: {ex}");
-    }
+    </section>
   }
 
-  private static string Bi(string? shortName)
-    => string.IsNullOrWhiteSpace(shortName) ? "bi bi-dot" : $"bi bi-{shortName.Trim()}";
+  <!-- ================= SOLUTIONS ================= -->
+  @if (M.Solutions is not null && M.Solutions.Tabs?.Count > 0)
+  {
+    <section id="solutions" class="bg-body-tertiary">
+      <div class="container">
+        <h2 class="text-center mb-4">@M.Solutions.Title</h2>
+
+        <ul class="nav nav-pills justify-content-center gap-2 mb-4" role="tablist">
+          @for (var i = 0; i < M.Solutions.Tabs.Count; i++)
+          {
+            var tab = M.Solutions.Tabs[i];
+            <li class="nav-item" role="presentation">
+              <button class="nav-link @(i==0 ? "active" : null)" data-bs-toggle="pill" data-bs-target="@($"#{tab.Id}")" type="button">@tab.Label</button>
+            </li>
+          }
+        </ul>
+
+        <div class="tab-content">
+          @for (var i = 0; i < M.Solutions.Tabs.Count; i++)
+          {
+            var tab = M.Solutions.Tabs[i];
+            <div class="tab-pane fade @(i==0 ? "show active" : null)" id="@tab.Id">
+              <div class="row g-4">
+                @foreach (var c in tab.Cards)
+                {
+                  <div class="col-md-4">
+                    <div class="solution-card h-100">
+                      <h6>@c.Title</h6>
+                      @if (!string.IsNullOrWhiteSpace(c.Subtitle))
+                      {
+                        <p class="muted mb-0">@c.Subtitle</p>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </section>
+  }
+
+  <!-- =============== FINAL CTA =============== -->
+  @if (M.FinalCta is not null)
+  {
+    <section class="text-center">
+      <div class="container">
+        <div class="p-5 rounded-4" style="background:var(--card); border:1px solid var(--border); box-shadow:var(--elev);">
+          <h2 class="mb-2">@M.FinalCta.Title</h2>
+          @if (!string.IsNullOrWhiteSpace(M.FinalCta.Subtitle))
+          {
+            <p class="section-sub mb-4">@M.FinalCta.Subtitle</p>
+          }
+          <div class="d-flex gap-3 justify-content-center">
+            <a class="btn btn-primary btn-lg" href="@M.FinalCta.PrimaryHref">@M.FinalCta.PrimaryText</a>
+            <a class="btn btn-outline-light btn-lg" href="@M.FinalCta.SecondaryHref">@M.FinalCta.SecondaryText</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  }
+
+  <!-- Chatbot -->
+  <button class="chatbot-btn focus-ring" aria-label="Chat with us">
+    <i class="bi bi-chat-dots fs-4"></i>
+  </button>
 }

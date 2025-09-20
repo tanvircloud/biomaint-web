@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "aG3d091s7FnKqYRYNyptMccB2/xPDZv2kGrvCwxjAH4=",
+  "Hash": "dpnBnlE+A6E4QBeIn1F0gTqJXDAmL+W38GRc9CcC6G4=",
   "Source": "WebApp",
   "BasePath": "/",
   "Mode": "Root",
@@ -8719,25 +8719,6 @@
       "OriginalItemSpec": "wwwroot\\content\\faq.json"
     },
     {
-      "Identity": "C:\\dev\\app\\WebApp\\wwwroot\\content\\industries.json",
-      "SourceId": "WebApp",
-      "SourceType": "Discovered",
-      "ContentRoot": "C:\\dev\\app\\WebApp\\wwwroot\\",
-      "BasePath": "/",
-      "RelativePath": "content/industries.json",
-      "AssetKind": "All",
-      "AssetMode": "All",
-      "AssetRole": "Primary",
-      "AssetMergeBehavior": "PreferTarget",
-      "AssetMergeSource": "",
-      "RelatedAsset": "",
-      "AssetTraitName": "",
-      "AssetTraitValue": "",
-      "CopyToOutputDirectory": "Never",
-      "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "wwwroot\\content\\industries.json"
-    },
-    {
       "Identity": "C:\\dev\\app\\WebApp\\wwwroot\\content\\landing.json",
       "SourceId": "WebApp",
       "SourceType": "Discovered",
@@ -8833,25 +8814,6 @@
       "OriginalItemSpec": "wwwroot\\content\\product.json"
     },
     {
-      "Identity": "C:\\dev\\app\\WebApp\\wwwroot\\content\\security.json",
-      "SourceId": "WebApp",
-      "SourceType": "Discovered",
-      "ContentRoot": "C:\\dev\\app\\WebApp\\wwwroot\\",
-      "BasePath": "/",
-      "RelativePath": "content/security.json",
-      "AssetKind": "All",
-      "AssetMode": "All",
-      "AssetRole": "Primary",
-      "AssetMergeBehavior": "PreferTarget",
-      "AssetMergeSource": "",
-      "RelatedAsset": "",
-      "AssetTraitName": "",
-      "AssetTraitValue": "",
-      "CopyToOutputDirectory": "Never",
-      "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "wwwroot\\content\\security.json"
-    },
-    {
       "Identity": "C:\\dev\\app\\WebApp\\wwwroot\\content\\testimonials.json",
       "SourceId": "WebApp",
       "SourceType": "Discovered",
@@ -8869,25 +8831,6 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\content\\testimonials.json"
-    },
-    {
-      "Identity": "C:\\dev\\app\\WebApp\\wwwroot\\css\\app.css",
-      "SourceId": "WebApp",
-      "SourceType": "Discovered",
-      "ContentRoot": "C:\\dev\\app\\WebApp\\wwwroot\\",
-      "BasePath": "/",
-      "RelativePath": "css/app.css",
-      "AssetKind": "All",
-      "AssetMode": "All",
-      "AssetRole": "Primary",
-      "AssetMergeBehavior": "PreferTarget",
-      "AssetMergeSource": "",
-      "RelatedAsset": "",
-      "AssetTraitName": "",
-      "AssetTraitValue": "",
-      "CopyToOutputDirectory": "Never",
-      "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "wwwroot\\css\\app.css"
     },
     {
       "Identity": "C:\\dev\\app\\WebApp\\wwwroot\\css\\bootstrap\\bootstrap.min.css",
@@ -9002,25 +8945,6 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\index.html"
-    },
-    {
-      "Identity": "C:\\dev\\app\\WebApp\\wwwroot\\js\\site.js",
-      "SourceId": "WebApp",
-      "SourceType": "Discovered",
-      "ContentRoot": "C:\\dev\\app\\WebApp\\wwwroot\\",
-      "BasePath": "/",
-      "RelativePath": "js/site.js",
-      "AssetKind": "All",
-      "AssetMode": "All",
-      "AssetRole": "Primary",
-      "AssetMergeBehavior": "PreferTarget",
-      "AssetMergeSource": "",
-      "RelatedAsset": "",
-      "AssetTraitName": "",
-      "AssetTraitValue": "",
-      "CopyToOutputDirectory": "Never",
-      "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "wwwroot\\js\\site.js"
     },
     {
       "Identity": "C:\\dev\\app\\WebApp\\wwwroot\\js\\theme.js",

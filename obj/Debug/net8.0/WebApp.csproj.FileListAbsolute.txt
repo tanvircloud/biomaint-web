@@ -684,6 +684,7 @@ C:\dev\app\WebApp\obj\Debug\net8.0\WebApp.AssemblyInfoInputs.cache
 C:\dev\app\WebApp\obj\Debug\net8.0\WebApp.AssemblyInfo.cs
 C:\dev\app\WebApp\obj\Debug\net8.0\WebApp.csproj.CoreCompileInputs.cache
 C:\dev\app\WebApp\obj\Debug\net8.0\WebApp.MvcApplicationPartsAssemblyInfo.cache
+C:\dev\app\WebApp\obj\Debug\net8.0\WebApp.sourcelink.json
 C:\dev\app\WebApp\obj\Debug\net8.0\webcil\Microsoft.AspNetCore.Authorization.wasm
 C:\dev\app\WebApp\obj\Debug\net8.0\webcil\Microsoft.AspNetCore.Components.wasm
 C:\dev\app\WebApp\obj\Debug\net8.0\webcil\Microsoft.AspNetCore.Components.Authorization.wasm

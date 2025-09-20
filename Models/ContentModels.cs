@@ -1,21 +1,60 @@
+using System.Collections.Generic;
+
 namespace WebApp.Models
 {
-    // -------------------------------
-    // Navigation
-    // -------------------------------
+    // ---------------------------------------------------------------------
+    // (LEGACY) Navigation used by older header implementations
+    // ---------------------------------------------------------------------
     public record NavItem(
         string Title,
         string? Href = null,
         bool External = false,
-        List<NavItem>? Children = null     // ✅ allow nested items for dropdowns
+        List<NavItem>? Children = null
     );
 
     public record NavHeader(
         string Brand,
         string Logo,
         List<NavItem> Links,
-        string? Href = "/",                // Brand link (default → home)
-        string? Tagline = null             // Optional tagline under logo
+        string? Href = "/",
+        string? Tagline = null
+    );
+
+    // ---------------------------------------------------------------------
+    // NEW HEADER (webApp.html) — matches your JSON exactly
+    // {
+    //   "brand": { "text": "...", "href": "/" },
+    //   "groups": [
+    //     { "id":"product", "label":"Product", "items":[ { "label":"...", "href":"..."} ] },
+    //     { "id":"pricing", "label":"Pricing", "href":"/pricing" }
+    //   ],
+    //   "auth": { "loginText":"Log in", "loginHref":"/auth/login" },
+    //   "cta":  { "text":"Try for Free", "href":"#demo" }
+    // }
+    // ---------------------------------------------------------------------
+    public record BrandLink(string? Text, string? Href);
+
+    public record NavChild( // child item inside a dropdown
+        string Label,
+        string? Href = null,
+        bool External = false
+    );
+
+    public record NavGroup( // either a dropdown (Items != null) or a direct link (Href != null)
+        string? Id,
+        string Label,
+        List<NavChild>? Items = null,
+        string? Href = null
+    );
+
+    public record AuthConfig(string? LoginText, string? LoginHref);
+    public record CtaConfig(string? Text, string? Href);
+
+    public record HeaderConfig(
+        BrandLink? Brand,
+        List<NavGroup>? Groups,
+        AuthConfig? Auth,
+        CtaConfig? Cta
     );
 
     // -------------------------------
@@ -28,9 +67,9 @@ namespace WebApp.Models
         string? CtaText,
         string? CtaHref,
         string? Image,
-        string? ImageAlt = null,            // accessibility alt text
-        string? SecondaryCtaText = null,    // optional secondary button text
-        string? SecondaryCtaHref = null     // optional secondary button link
+        string? ImageAlt = null,
+        string? SecondaryCtaText = null,
+        string? SecondaryCtaHref = null
     );
 
     // -------------------------------
@@ -40,7 +79,7 @@ namespace WebApp.Models
         string Title,
         string? Subtitle,
         string? Icon,
-        string? Link = null                // Optional → "Learn more"
+        string? Link = null
     );
 
     // -------------------------------
@@ -107,16 +146,89 @@ namespace WebApp.Models
         string Href
     );
 
+    // Grouped footer sections (columns)
+    public record FooterSection(
+        string Title,
+        List<LinkItem> Links
+    );
+
+    // App download badge
+    public record AppBadge(
+        string Alt,
+        string Src,
+        string Href
+    );
+
+    // Social icon link
+    public record SocialLink(
+        string Icon,
+        string Aria,
+        string Href
+    );
+
     public record FooterModel(
         string Copyright,
-        List<LinkItem> Links
+        List<FooterSection> Sections,
+        List<AppBadge>? AppBadges = null,
+        List<SocialLink>? SocialLinks = null,
+        List<LinkItem>? Legal = null,
+        string AppHeading = "Get the app",
+        string FollowHeading = "Follow"
+    );
+
+    // =====================================================================
+    // 🔹 NEW SECTIONS (from your newer landing layout)
+    // =====================================================================
+
+    // KPIs band
+    public record Kpi(
+        string Value,
+        string Text,
+        string? Style = null
+    );
+
+    // Testimonials
+    public record Testimonial(
+        string Name,
+        string Role,
+        string Img,
+        string Quote
+    );
+
+    public record Testimonials(
+        string TitleHtml,
+        string Subtitle,
+        List<Testimonial> Items
+    );
+
+    // Solutions (tabbed)
+    public record SolutionTab(
+        string Id,
+        string Label,
+        List<Feature> Cards
+    );
+
+    public record Solutions(
+        string Title,
+        List<SolutionTab> Tabs
+    );
+
+    // Final CTA
+    public record FinalCta(
+        string Title,
+        string Subtitle,
+        string PrimaryText,
+        string PrimaryHref,
+        string SecondaryText,
+        string SecondaryHref
     );
 
     // -------------------------------
     // Landing Page Model (all sections)
+    // NOTE: Header switched to the NEW HeaderConfig type.
     // -------------------------------
     public record LandingModel(
-        NavHeader? Header,                       // optional nav (can come from JSON too)
+        HeaderConfig? Header,
         HeroModel Hero,
         TrustModel Trust,
         List<Feature> Features,
@@ -125,6 +237,11 @@ namespace WebApp.Models
         AnalyticsModel Analytics,
         SupportModel Support,
         List<PricingPlan> Pricing,
-        FooterModel Footer
+        FooterModel Footer,
+
+        List<Kpi>? Kpis = null,
+        Testimonials? Testimonials = null,
+        Solutions? Solutions = null,
+        FinalCta? FinalCta = null
     );
 }

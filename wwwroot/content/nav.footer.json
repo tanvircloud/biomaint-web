@@ -1,0 +1,74 @@
+{
+  "copyright": "© 2025 BioMaint",
+
+  "appBand": {
+    "getApp": "Get the app",
+    "follow": "Follow",
+    "badges": [
+      {
+        "alt": "Download on the App Store",
+        "src": "https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg",
+        "href": "#"
+      },
+      {
+        "alt": "Get it on Google Play",
+        "src": "https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg",
+        "href": "#"
+      }
+    ],
+    "social": [
+      { "icon": "bi-linkedin",  "aria": "LinkedIn",  "href": "#" },
+      { "icon": "bi-instagram", "aria": "Instagram", "href": "#" },
+      { "icon": "bi-facebook",  "aria": "Facebook",  "href": "#" },
+      { "icon": "bi-twitter-x", "aria": "X",         "href": "#" },
+      { "icon": "bi-youtube",   "aria": "YouTube",   "href": "#" }
+    ]
+  },
+
+  "columns": [
+    {
+      "title": "Product",
+      "links": [
+        { "label": "Work Orders",             "href": "#features" },
+        { "label": "Preventive Maintenance",  "href": "#features" },
+        { "label": "Requests",                "href": "#features" },
+        { "label": "Equipment Management",    "href": "#features" },
+        { "label": "Parts & Inventory",       "href": "#features" },
+        { "label": "Checklists & Inspections","href": "#features" },
+        { "label": "Reports & Analytics",     "href": "#features" },
+        { "label": "Mobile App",              "href": "#mobile" }
+      ]
+    },
+    {
+      "title": "Solutions",
+      "links": [
+        { "label": "Healthcare Facilities",       "href": "#solutions" },
+        { "label": "Pharmaceutical & Labs",       "href": "#solutions" },
+        { "label": "Vendors & Service Providers", "href": "#solutions" },
+        { "label": "General Maintenance",         "href": "#solutions" }
+      ]
+    },
+    {
+      "title": "Resources",
+      "links": [
+        { "label": "Blog",          "href": "#" },
+        { "label": "Help Center",   "href": "#" },
+        { "label": "Glossary",      "href": "#" },
+        { "label": "Release Notes", "href": "#" }
+      ]
+    },
+    {
+      "title": "Company",
+      "links": [
+        { "label": "Contact",         "href": "#" },
+        { "label": "Privacy Policy",  "href": "#" },
+        { "label": "Terms of Service","href": "#" }
+      ]
+    }
+  ],
+
+  "legal": [
+    { "label": "Privacy Policy",  "href": "#" },
+    { "label": "Terms of Service","href": "#" }
+  ]
+}
