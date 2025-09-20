@@ -16,9 +16,9 @@ public sealed class ContentService
 
     public ContentService(HttpClient http) => _http = http;
 
-    // ---------------------------------------------------------------------
-    // Base loader (unchanged)
-    // ---------------------------------------------------------------------
+    // ------------------------------------------------------------
+    // Base loader
+    // ------------------------------------------------------------
     public async Task<T?> GetAsync<T>(string name, CancellationToken ct = default)
     {
         try
@@ -36,45 +36,53 @@ public sealed class ContentService
         }
     }
 
-    // ---------------------------------------------------------------------
-    // Helpers (guarded JSON utilities)
-    // ---------------------------------------------------------------------
-    private static string? Str(JsonElement obj, string prop)
-        => obj.TryGetProperty(prop, out var v) && v.ValueKind == JsonValueKind.String ? v.GetString() : null;
-
-    private static JsonElement? Obj(JsonElement obj, string prop)
-        => obj.TryGetProperty(prop, out var v) && v.ValueKind == JsonValueKind.Object ? v : null;
-
-    private static IEnumerable<JsonElement> Arr(JsonElement obj, string prop)
-        => obj.TryGetProperty(prop, out var v) && v.ValueKind == JsonValueKind.Array ? v.EnumerateArray() : Enumerable.Empty<JsonElement>();
-
-    // ---------------------------------------------------------------------
-    // Header parsing (new shape + legacy mapping), returned as HeaderConfig
-    // ---------------------------------------------------------------------
-    private static HeaderConfig ParseNewHeader(JsonElement rootOrHeader)
+    // ------------------------------------------------------------
+    // Case-insensitive JSON helpers
+    // ------------------------------------------------------------
+    private static bool TryProp(JsonElement e, string name, out JsonElement v)
     {
-        // Allow either { brand, groups, ... } or a wrapper { header:{...} }
-        var h = rootOrHeader;
-        if (h.TryGetProperty("header", out var inner) && inner.ValueKind == JsonValueKind.Object)
-            h = inner;
+        foreach (var p in e.EnumerateObject())
+        {
+            if (string.Equals(p.Name, name, StringComparison.OrdinalIgnoreCase))
+            { v = p.Value; return true; }
+        }
+        v = default; return false;
+    }
+
+    private static string? Str(JsonElement e, string name)
+        => TryProp(e, name, out var v) && v.ValueKind == JsonValueKind.String ? v.GetString() : null;
+
+    private static JsonElement? Obj(JsonElement e, string name)
+        => TryProp(e, name, out var v) && v.ValueKind == JsonValueKind.Object ? v : null;
+
+    private static IEnumerable<JsonElement> Arr(JsonElement e, string name)
+        => TryProp(e, name, out var v) && v.ValueKind == JsonValueKind.Array ? v.EnumerateArray() : Enumerable.Empty<JsonElement>();
+
+    private static bool Bool(JsonElement e, string name)
+        => TryProp(e, name, out var v) && v.ValueKind == JsonValueKind.True;
+
+    // ------------------------------------------------------------
+    // Header parsing (new + legacy) → HeaderConfig
+    // ------------------------------------------------------------
+    private static HeaderConfig ParseNewHeader(JsonElement maybeHeader)
+    {
+        // Accept {brand,...} or {header:{brand,...}}
+        if (TryProp(maybeHeader, "header", out var inner) && inner.ValueKind == JsonValueKind.Object)
+            maybeHeader = inner;
 
         // brand
-        BrandLink brand;
-        if (h.TryGetProperty("brand", out var b) && b.ValueKind == JsonValueKind.Object)
-        {
-            brand = new BrandLink(
-                Text: Str(b, "text") ?? Str(b, "label") ?? "BioMaint",
-                Href: Str(b, "href") ?? "/"
-            );
-        }
-        else
-        {
-            brand = new BrandLink("BioMaint", "/");
-        }
+        var b = Obj(maybeHeader, "brand");
+        var brand = new BrandLink(
+            Text: b is JsonElement be ? (Str(be, "text") ?? Str(be, "label") ?? "BioMaint") : "BioMaint",
+            Href: b is JsonElement be2 ? (Str(be2, "href") ?? "/") : "/"
+        );
 
         // groups
         var groups = new List<NavGroup>();
-        foreach (var g in Arr(h, "groups"))
+        IEnumerable<JsonElement> groupSrc = Arr(maybeHeader, "groups");
+        if (!groupSrc.Any()) groupSrc = Arr(maybeHeader, "menus"); // legacy alias
+
+        foreach (var g in groupSrc)
         {
             var id    = Str(g, "id");
             var label = Str(g, "label") ?? "";
@@ -83,38 +91,38 @@ public sealed class ContentService
                 .Select(i => new NavChild(
                     Label: Str(i, "label") ?? "",
                     Href : Str(i, "href")  ?? "#",
-                    External: false
+                    External: Bool(i, "external")
                 ))
                 .ToList();
 
             if (items.Count > 0)
             {
-                groups.Add(new NavGroup(id, label, items, null));      // positional
+                groups.Add(new NavGroup(id, label, items, null));     // dropdown
             }
             else
             {
-                groups.Add(new NavGroup(id, label, null, Str(g, "href") ?? "#")); // positional
+                groups.Add(new NavGroup(id, label, null, Str(g, "href") ?? "#")); // single link
             }
         }
 
         // auth
         AuthConfig? auth = null;
-        var authObj = Obj(h, "auth");
-        if (authObj is JsonElement ae)
-            auth = new AuthConfig(Str(ae, "loginText"), Str(ae, "loginHref"));
+        var ao = Obj(maybeHeader, "auth");
+        if (ao is JsonElement ae)
+            auth = new AuthConfig(Str(ae, "loginText") ?? "Log in", Str(ae, "loginHref") ?? "/auth/login");
 
         // cta
         CtaConfig? cta = null;
-        var ctaObj = Obj(h, "cta");
-        if (ctaObj is JsonElement ce)
-            cta = new CtaConfig(Str(ce, "text"), Str(ce, "href"));
+        var co = Obj(maybeHeader, "cta");
+        if (co is JsonElement ce)
+            cta = new CtaConfig(Str(ce, "text") ?? "Try for Free", Str(ce, "href") ?? "#demo");
 
         return new HeaderConfig(brand, groups, auth, cta);
     }
 
     private static HeaderConfig MapLegacyHeaderToNew(JsonElement legacyRoot)
     {
-        // legacy: { "brand": "BioMaint", menus:[{label,items:[{label,href},...] }], pricingHref, loginHref, cta:{label,href} }
+        // legacy: brand:"BioMaint", menus:[{label,items:[...]}], pricingHref, loginHref, cta:{label,href}
         var brand = new BrandLink(Str(legacyRoot, "brand") ?? "BioMaint", "/");
 
         var groups = new List<NavGroup>();
@@ -122,73 +130,68 @@ public sealed class ContentService
         {
             var label = Str(menu, "label") ?? "";
             var items = Arr(menu, "items")
-                .Select(i => new NavChild(
-                    Label: Str(i, "label") ?? "",
-                    Href : Str(i, "href")  ?? "#"
-                ))
+                .Select(i => new NavChild(Str(i, "label") ?? "", Str(i, "href") ?? "#"))
                 .ToList();
 
-            groups.Add(new NavGroup(null, label, items, null)); // positional (fixes CS1739)
+            groups.Add(new NavGroup(null, label, items, null));
         }
 
-        var pricingHref = Str(legacyRoot, "pricingHref");
-        if (!string.IsNullOrWhiteSpace(pricingHref))
-            groups.Add(new NavGroup("pricing", "Pricing", null, pricingHref)); // positional (fixes CS1739)
+        var pricing = Str(legacyRoot, "pricingHref");
+        if (!string.IsNullOrWhiteSpace(pricing))
+            groups.Add(new NavGroup("pricing", "Pricing", null, pricing));
 
-        var auth = default(AuthConfig);
-        var loginHref = Str(legacyRoot, "loginHref");
-        if (!string.IsNullOrWhiteSpace(loginHref))
-            auth = new AuthConfig("Log in", loginHref);
+        AuthConfig? auth = null;
+        var login = Str(legacyRoot, "loginHref");
+        if (!string.IsNullOrWhiteSpace(login))
+            auth = new AuthConfig("Log in", login);
 
-        var cta = default(CtaConfig);
-        var ctaObj = Obj(legacyRoot, "cta");
-        if (ctaObj is JsonElement ce)
+        CtaConfig? cta = null;
+        var c = Obj(legacyRoot, "cta");
+        if (c is JsonElement ce)
             cta = new CtaConfig(Str(ce, "label") ?? "Try for Free", Str(ce, "href") ?? "#demo");
 
         return new HeaderConfig(brand, groups, auth, cta);
     }
 
     /// <summary>
-    /// Gets the header config from:
-    /// 1) landing.json (header block)
-    /// 2) header.json (if you split it out later)
-    /// 3) legacy nav.header.json (mapped)
-    /// 4) a minimal hardcoded fallback
+    /// Loads header from:
+    /// 1) nav.header.json  (primary)
+    /// 2) header.json      (optional)
+    /// 3) landing.json.header (fallback)
+    /// 4) a minimal static fallback (never empty)
     /// </summary>
     public async Task<HeaderConfig> GetHeaderConfigAsync(CancellationToken ct = default)
     {
-        // 1) landing.json -> header
+        // 1) primary: nav.header.json
+        try
+        {
+            using var navDoc = await GetAsync<JsonDocument>("nav.header", ct);
+            if (navDoc is not null) return ParseNewHeader(navDoc.RootElement);
+        }
+        catch { /* ignore */ }
+
+        // 2) header.json
+        try
+        {
+            using var headerDoc = await GetAsync<JsonDocument>("header", ct);
+            if (headerDoc is not null) return ParseNewHeader(headerDoc.RootElement);
+        }
+        catch { /* ignore */ }
+
+        // 3) landing.json.header
         try
         {
             using var landing = await GetAsync<JsonDocument>("landing", ct);
             if (landing is not null)
             {
-                var lr = landing.RootElement;
-                if (lr.TryGetProperty("header", out var hdr) && hdr.ValueKind == JsonValueKind.Object)
+                var root = landing.RootElement;
+                if (TryProp(root, "header", out var hdr) && hdr.ValueKind == JsonValueKind.Object)
                     return ParseNewHeader(hdr);
             }
         }
         catch { /* ignore */ }
 
-        // 2) header.json (optional)
-        try
-        {
-            using var header = await GetAsync<JsonDocument>("header", ct);
-            if (header is not null)
-                return ParseNewHeader(header.RootElement);
-        }
-        catch { /* ignore */ }
-
-        // 3) legacy nav.header.json
-        try
-        {
-            using var legacy = await GetAsync<JsonDocument>("nav.header", ct);
-            if (legacy is not null)
-                return MapLegacyHeaderToNew(legacy.RootElement);
-        }
-        catch { /* ignore */ }
-
-        // 4) minimal fallback (never fail)
+        // 4) minimal fallback
         return new HeaderConfig(
             new BrandLink("BioMaint", "/"),
             new List<NavGroup>
@@ -203,9 +206,9 @@ public sealed class ContentService
         );
     }
 
-    // =====================================================================
-    // Footer: nav.footer.json → FooterModel (build grouped Sections)
-    // =====================================================================
+    // ------------------------------------------------------------
+    // Footer: nav.footer.json → FooterModel
+    // ------------------------------------------------------------
     public async Task<FooterModel?> GetFooterModelAsync(CancellationToken ct = default)
     {
         try
@@ -220,10 +223,7 @@ public sealed class ContentService
             {
                 var title = Str(col, "title") ?? "";
                 var links = Arr(col, "links")
-                    .Select(l => new LinkItem(
-                        Text: Str(l, "label") ?? "",
-                        Href: Str(l, "href")  ?? "#"
-                    ))
+                    .Select(l => new LinkItem(Str(l, "label") ?? "", Str(l, "href") ?? "#"))
                     .ToList();
 
                 sections.Add(new FooterSection(title, links));
@@ -240,10 +240,9 @@ public sealed class ContentService
         }
     }
 
-    // =====================================================================
-    // landing.json → LandingModel (maps only to existing records; guarded)
-    // Also populates Header via the new header parser.
-    // =====================================================================
+    // ------------------------------------------------------------
+    // landing.json → LandingModel (kept as you had it; header filled here too)
+    // ------------------------------------------------------------
     public async Task<LandingModel?> GetLandingModelAsync(CancellationToken ct = default)
     {
         JsonDocument? doc = null;
@@ -254,19 +253,18 @@ public sealed class ContentService
 
             var root = doc.RootElement;
 
-            // --- HEADER (new shape preferred) ---
+            // Header (prefer embedded; else loader)
             HeaderConfig? header = null;
             try
             {
-                if (root.TryGetProperty("header", out var hdr) && hdr.ValueKind == JsonValueKind.Object)
+                if (TryProp(root, "header", out var hdr) && hdr.ValueKind == JsonValueKind.Object)
                     header = ParseNewHeader(hdr);
             }
-            catch { /* ignore header block errors */ }
+            catch { /* ignore */ }
 
-            // --- HERO ---
+            // HERO
             string heroTitle = "";
             string? heroSub = null, pLabel = null, pHref = null, sLabel = null, sHref = null;
-
             try
             {
                 var heroOpt = Obj(root, "hero");
@@ -279,24 +277,18 @@ public sealed class ContentService
                     if (p is JsonElement pe) { pLabel = Str(pe, "label"); pHref = Str(pe, "href"); }
 
                     var s = Obj(hero, "secondaryCta");
-                    if (s is JsonElement secEl) { sLabel = Str(secEl, "label"); sHref = Str(secEl, "href"); }
+                    if (s is JsonElement se) { sLabel = Str(se, "label"); sHref = Str(se, "href"); }
                 }
             }
-            catch { /* ignore hero errors */ }
+            catch { /* ignore */ }
 
             var heroModel = new HeroModel(
-                Eyebrow: null,
-                Title: heroTitle,
-                Subtitle: heroSub,
-                CtaText: pLabel,
-                CtaHref: pHref,
-                Image: null,
-                ImageAlt: null,
-                SecondaryCtaText: sLabel,
-                SecondaryCtaHref: sHref
+                Eyebrow: null, Title: heroTitle, Subtitle: heroSub,
+                CtaText: pLabel, CtaHref: pHref, Image: null, ImageAlt: null,
+                SecondaryCtaText: sLabel, SecondaryCtaHref: sHref
             );
 
-            // --- FEATURES ---
+            // FEATURES
             var featuresList = new List<Feature>();
             try
             {
@@ -304,19 +296,12 @@ public sealed class ContentService
                 if (featuresOpt is JsonElement features)
                 {
                     foreach (var c in Arr(features, "cards"))
-                    {
-                        featuresList.Add(new Feature(
-                            Title: Str(c, "title") ?? "",
-                            Subtitle: Str(c, "desc"),
-                            Icon: Str(c, "icon"),
-                            Link: null
-                        ));
-                    }
+                        featuresList.Add(new Feature(Str(c, "title") ?? "", Str(c, "desc"), Str(c, "icon")));
                 }
             }
-            catch { /* ignore */ }
+            catch { }
 
-            // --- MOBILE / CROSS-PLATFORM ---
+            // MOBILE / CROSS
             string crossTitle = "", crossSub = "";
             var essentials = new List<Essential>();
             try
@@ -326,146 +311,87 @@ public sealed class ContentService
                 {
                     crossTitle = Str(mob, "title") ?? "";
                     crossSub   = Str(mob, "sub") ?? "";
-
                     foreach (var m in Arr(mob, "micro"))
-                    {
-                        essentials.Add(new Essential(
-                            Title: Str(m, "title") ?? "",
-                            Subtitle: Str(m, "sub") ?? "",
-                            Icon: Str(m, "icon") ?? ""
-                        ));
-                    }
+                        essentials.Add(new Essential(Str(m, "title") ?? "", Str(m, "sub") ?? "", Str(m, "icon") ?? ""));
                 }
             }
-            catch { /* ignore */ }
+            catch { }
 
-            var cross = new CrossPlatformModel(
-                Title: crossTitle,
-                Subtitle: crossSub,
-                DesktopImage: "",
-                MobileImage: ""
-            );
+            var cross = new CrossPlatformModel(crossTitle, crossSub, "", "");
 
-            // --- ANALYTICS ---
+            // ANALYTICS
             string analyticsTitle = "", analyticsSub = "";
             try
             {
-                var analyticsOpt = Obj(root, "analytics");
-                if (analyticsOpt is JsonElement an)
-                {
-                    analyticsTitle = Str(an, "title") ?? "";
-                    analyticsSub   = Str(an, "sub") ?? "";
-                }
+                var a = Obj(root, "analytics");
+                if (a is JsonElement an) { analyticsTitle = Str(an, "title") ?? ""; analyticsSub = Str(an, "sub") ?? ""; }
             }
-            catch { /* ignore */ }
-
+            catch { }
             var analytics = new AnalyticsModel(analyticsTitle, analyticsSub);
 
-            // --- SUPPORT (reuse finalCta copy if present) ---
+            // SUPPORT from finalCta text if present
             string supportTitle = "", supportSub = "";
             JsonElement? finalCtaOpt = null;
             try
             {
                 finalCtaOpt = Obj(root, "finalCta");
-                if (finalCtaOpt is JsonElement fce)
-                {
-                    supportTitle = Str(fce, "title") ?? "";
-                    supportSub   = Str(fce, "sub") ?? "";
-                }
+                if (finalCtaOpt is JsonElement fce) { supportTitle = Str(fce, "title") ?? ""; supportSub = Str(fce, "sub") ?? ""; }
             }
-            catch { /* ignore */ }
-
+            catch { }
             var support = new SupportModel(supportTitle, supportSub);
 
-            // --- PRICING placeholder ---
-            var pricing = new List<PricingPlan>();
+            // FOOTER placeholder (real footer loaded separately)
+            var footer = new FooterModel("", new List<FooterSection>());
 
-            // --- FOOTER placeholder (Footer loads separately) ---
-            var footer = new FooterModel(
-                "",
-                new List<FooterSection>() // EMPTY sections placeholder
-            );
-
-            // --- KPIs ---
+            // KPIs
             var kpis = new List<Kpi>();
             try
             {
-                var kpisOpt = Obj(root, "kpis");
-                if (kpisOpt is JsonElement kroot)
+                var kroot = Obj(root, "kpis");
+                if (kroot is JsonElement ke)
                 {
-                    foreach (var k in Arr(kroot, "items"))
-                    {
-                        kpis.Add(new Kpi(
-                            Value: Str(k, "value") ?? "",
-                            Text:  Str(k, "text")  ?? "",
-                            Style: Str(k, "style")
-                        ));
-                    }
+                    foreach (var k in Arr(ke, "items"))
+                        kpis.Add(new Kpi(Str(k, "value") ?? "", Str(k, "text") ?? "", Str(k, "style")));
                 }
             }
-            catch { /* ignore */ }
+            catch { }
 
-            // --- TESTIMONIALS ---
+            // TESTIMONIALS
             Testimonials? testimonials = null;
             try
             {
-                var testiOpt = Obj(root, "testimonials");
-                if (testiOpt is JsonElement te)
+                var te = Obj(root, "testimonials");
+                if (te is JsonElement t)
                 {
                     var items = new List<Testimonial>();
-                    foreach (var t in Arr(te, "items"))
-                    {
-                        items.Add(new Testimonial(
-                            Name:  Str(t, "name")  ?? "",
-                            Role:  Str(t, "role")  ?? "",
-                            Img:   Str(t, "img")   ?? "",
-                            Quote: Str(t, "quote") ?? ""
-                        ));
-                    }
-
-                    testimonials = new Testimonials(
-                        TitleHtml: Str(te, "titleHtml") ?? "",
-                        Subtitle:  Str(te, "sub") ?? "",
-                        Items: items
-                    );
+                    foreach (var x in Arr(t, "items"))
+                        items.Add(new Testimonial(Str(x, "name") ?? "", Str(x, "role") ?? "", Str(x, "img") ?? "", Str(x, "quote") ?? ""));
+                    testimonials = new Testimonials(Str(t, "titleHtml") ?? "", Str(t, "sub") ?? "", items);
                 }
             }
-            catch { /* ignore */ }
+            catch { }
 
-            // --- SOLUTIONS ---
+            // SOLUTIONS
             Solutions? solutions = null;
             try
             {
-                var solOpt = Obj(root, "solutions");
-                if (solOpt is JsonElement solRoot)
+                var solRoot = Obj(root, "solutions");
+                if (solRoot is JsonElement s)
                 {
                     var tabs = new List<SolutionTab>();
-                    foreach (var tab in Arr(solRoot, "tabs"))
+                    foreach (var tab in Arr(s, "tabs"))
                     {
                         var cards = new List<Feature>();
                         foreach (var c in Arr(tab, "cards"))
-                        {
-                            cards.Add(new Feature(
-                                Title: Str(c, "title") ?? "",
-                                Subtitle: Str(c, "desc"),
-                                Icon: null,
-                                Link: null
-                            ));
-                        }
-
-                        tabs.Add(new SolutionTab(
-                            Id:    Str(tab, "id")    ?? "",
-                            Label: Str(tab, "label") ?? "",
-                            Cards: cards
-                        ));
+                            cards.Add(new Feature(Str(c, "title") ?? "", Str(c, "desc"), null));
+                        tabs.Add(new SolutionTab(Str(tab, "id") ?? "", Str(tab, "label") ?? "", cards));
                     }
-
-                    solutions = new Solutions(Str(solRoot, "title") ?? "", tabs);
+                    solutions = new Solutions(Str(s, "title") ?? "", tabs);
                 }
             }
-            catch { /* ignore */ }
+            catch { }
 
-            // --- FINAL CTA ---
+            // FINAL CTA
             FinalCta? finalCta = null;
             try
             {
@@ -473,10 +399,9 @@ public sealed class ContentService
                 {
                     var prim = Obj(fc, "primary");
                     var sec  = Obj(fc, "secondary");
-
                     finalCta = new FinalCta(
-                        Title:        Str(fc, "title") ?? "",
-                        Subtitle:     Str(fc, "sub") ?? "",
+                        Title: Str(fc, "title") ?? "",
+                        Subtitle: Str(fc, "sub") ?? "",
                         PrimaryText:  prim is JsonElement pe ? Str(pe, "label") ?? "" : "",
                         PrimaryHref:  prim is JsonElement pe2 ? Str(pe2, "href") ?? "#" : "#",
                         SecondaryText: sec is JsonElement se2 ? Str(se2, "label") ?? "" : "",
@@ -484,16 +409,15 @@ public sealed class ContentService
                     );
                 }
             }
-            catch { /* ignore */ }
+            catch { }
 
-            // Fallback header if the block was missing/invalid
+            // If header block missing/invalid, load via header pipeline
             header ??= await GetHeaderConfigAsync(ct);
 
-            // --- Assemble ---
             return new LandingModel(
                 Header: header,
                 Hero: heroModel,
-                Trust: new TrustModel("", new List<Badge>()), // (not used by new design)
+                Trust: new TrustModel("", new List<Badge>()),
                 Features: featuresList,
                 CrossPlatform: cross,
                 HealthcareEssentials: essentials,

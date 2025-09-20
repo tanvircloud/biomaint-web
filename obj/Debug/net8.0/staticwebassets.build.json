@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "dpnBnlE+A6E4QBeIn1F0gTqJXDAmL+W38GRc9CcC6G4=",
+  "Hash": "XcSh1VMUyoYB8scQ82DnxtgU9p6a4LNAz7eimguuInE=",
   "Source": "WebApp",
   "BasePath": "/",
   "Mode": "Root",
@@ -8945,6 +8945,25 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\index.html"
+    },
+    {
+      "Identity": "C:\\dev\\app\\WebApp\\wwwroot\\js\\bootstrap\\bootstrap.bundle.min.js",
+      "SourceId": "WebApp",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\dev\\app\\WebApp\\wwwroot\\",
+      "BasePath": "/",
+      "RelativePath": "js/bootstrap/bootstrap.bundle.min.js",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\js\\bootstrap\\bootstrap.bundle.min.js"
     },
     {
       "Identity": "C:\\dev\\app\\WebApp\\wwwroot\\js\\theme.js",
