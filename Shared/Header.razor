@@ -5,8 +5,13 @@
 <nav class="navbar navbar-expand-lg sticky-top">
   <div class="container">
     <!-- Brand -->
-    <a class="navbar-brand fw-bold" href="@NormalizeHref(_cfg?.Brand?.Href)">
-      @_cfg?.Brand?.Text
+    <a class="navbar-brand fw-bold d-flex align-items-center gap-2"
+       href="@NormalizeHref(_cfg?.Brand?.Href)" aria-label="BioMaint Home">
+      <img src="assets/logos/BioMaint.svg"
+           alt="BioMaint Logo"
+           width="28" height="28"
+           decoding="async" />
+      <span>@_cfg?.Brand?.Text</span>
     </a>
 
     <!-- Mobile hamburger -->
@@ -58,16 +63,47 @@
                 <a class="nav-link" href="@NormalizeHref(g.Href)">@g.Label</a>
               </li>
             }
-            <!-- If neither Items nor Href, skip silently (no hardcoded fallback) -->
           }
         }
       </ul>
 
-      <!-- RIGHT: theme + auth + cta (all from JSON; omit if absent) -->
+      <!-- RIGHT: theme dropdown + auth + cta -->
       <div class="d-flex align-items-center gap-2">
-        <button class="theme-btn focus-ring" id="themeBtn" aria-label="Toggle theme">
-          <i class="bi bi-moon-stars" id="themeIcon"></i>
-        </button>
+
+        <!-- Theme dropdown (single control) -->
+        <div class="dropdown">
+          <button id="themeMenuBtn"
+                  class="btn btn-outline-light d-flex align-items-center dropdown-toggle"
+                  type="button"
+                  data-bs-toggle="dropdown"
+                  data-bs-display="static"
+                  data-bs-boundary="viewport"
+                  aria-expanded="false" aria-haspopup="true">
+            <i id="themeCurIcon" class="bi bi-moon-stars me-2" aria-hidden="true"></i>
+            <span id="themeCurLabel">Auto</span>
+          </button>
+
+          <ul id="themeMenu" class="dropdown-menu dropdown-menu-end" aria-labelledby="themeMenuBtn" role="menu">
+            <li>
+              <button class="dropdown-item d-flex align-items-center"
+                      data-mode="light" role="menuitemradio" aria-checked="false">
+                <i class="bi bi-sun me-2" aria-hidden="true"></i><span>Light</span>
+              </button>
+            </li>
+            <li>
+              <button class="dropdown-item d-flex align-items-center"
+                      data-mode="dark" role="menuitemradio" aria-checked="false">
+                <i class="bi bi-moon-stars me-2" aria-hidden="true"></i><span>Dark</span>
+              </button>
+            </li>
+            <li>
+              <button class="dropdown-item d-flex align-items-center"
+                      data-mode="auto" role="menuitemradio" aria-checked="false">
+                <i class="bi bi-circle-half me-2" aria-hidden="true"></i><span>Auto</span>
+              </button>
+            </li>
+          </ul>
+        </div>
 
         @if (!string.IsNullOrWhiteSpace(_cfg?.Auth?.LoginHref))
         {
@@ -92,32 +128,20 @@
 
   protected override async Task OnInitializedAsync()
   {
-    try
-    {
-      // Pulls header from JSON (landing/header/nav.header per your ContentService)
-      _cfg = await Content.GetHeaderConfigAsync();
-    }
-    catch
-    {
-      _cfg = null; // render nothing if JSON missing; no hardcoded fallbacks
-    }
+    try { _cfg = await Content.GetHeaderConfigAsync(); }
+    catch { _cfg = null; }
   }
 
   protected override async Task OnAfterRenderAsync(bool firstRender)
   {
     if (!firstRender) return;
-    try
-    {
-      // ensure burger ↔ X sync & smooth anchors after Blazor render
-      await JS.InvokeVoidAsync("BioUI.init");
-    }
-    catch { /* theme.js not loaded yet — safe to ignore */ }
+    try { await JS.InvokeVoidAsync("BioUI.init"); }
+    catch { }
   }
 
   private static string? NormalizeHref(string? href)
   {
     if (string.IsNullOrWhiteSpace(href)) return href;
-    // convert "/#section" → "#section" so theme.js smooth-scroll works
     return href.StartsWith("/#") ? href[1..] : href;
   }
 }

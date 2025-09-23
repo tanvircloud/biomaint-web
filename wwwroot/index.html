@@ -26,18 +26,25 @@
 
   <!-- PWA -->
   <link rel="manifest" href="manifest.json" />
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon.png" />
-  <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png" />
 
-  <!-- Theme color will be updated immediately below and on runtime changes -->
-  <meta id="theme-color" name="theme-color" content="#10a37f" />
+  <!-- Favicon / Icons: SVG first, with PNG + ICO fallbacks -->
+  <link rel="icon" type="image/svg+xml" href="assets/logos/BioMaint.svg" />
+  <link rel="alternate icon" type="image/png" sizes="32x32" href="assets/logos/favicon-32x32.png" />
+  <link rel="alternate icon" type="image/png" sizes="16x16" href="assets/logos/favicon-16x16.png" />
+  <link rel="mask-icon" href="assets/logos/BioMaint.svg" color="#10B981" />
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/logos/ios-180x180.png" />
+  <link rel="shortcut icon" href="assets/logos/favicon.ico" />
+
+  <!-- Theme color (updated to brand) -->
+  <meta id="theme-color" name="theme-color" content="#10B981" />
   <meta name="color-scheme" content="light dark" />
 
   <!-- Prevent theme flash: compute effective theme before CSS loads -->
   <script>
     (function () {
       try {
-        var saved = localStorage.getItem('biomaint-theme') || 'auto'; // set to 'dark' if you want default-dark always
+        var BRAND = '#10B981';
+        var saved = localStorage.getItem('biomaint-theme') || 'auto';
         var eff = (saved === 'light' || saved === 'dark')
           ? saved
           : (window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
@@ -46,10 +53,9 @@
         doc.setAttribute('data-bs-theme', eff);
         doc.style.colorScheme = eff;
 
-        // keep browser chrome in sync immediately
         var meta = document.querySelector('meta[name="theme-color"]');
         if (meta) {
-          meta.setAttribute('content', eff === 'dark' ? '#0b0f13' : '#10a37f');
+          meta.setAttribute('content', eff === 'dark' ? '#0b0f13' : BRAND);
         }
       } catch {}
     })();
@@ -87,14 +93,8 @@
     });
   </script>
 
-  <!-- Theme runtime -->
+  <!-- Theme runtime (auto-inits itself) -->
   <script src="js/theme.js" defer></script>
-  <script>
-    // initialize your theme handler once JS is ready
-    window.addEventListener('DOMContentLoaded', function () {
-      window.BioTheme?.init?.();
-    });
-  </script>
 
   <!-- Blazor boot -->
   <script src="_framework/blazor.webassembly.js"></script>

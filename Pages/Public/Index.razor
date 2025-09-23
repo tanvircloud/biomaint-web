@@ -16,10 +16,15 @@
 
     protected override async Task OnInitializedAsync()
     {
-        M = await Content.GetLandingModelAsync();
+        // Start both requests together to shorten the null-render window
+        var landingTask = Content.GetLandingModelAsync();
+        var docTask     = Content.GetAsync<JsonDocument>("landing");
 
-        // Read landing.json directly for analytics.metrics + howItWorks
-        using var doc = await Content.GetAsync<JsonDocument>("landing");
+        await Task.WhenAll(landingTask, docTask);
+
+        M = await landingTask;
+
+        using var doc = await docTask;
         if (doc is null) return;
 
         var root = doc.RootElement;
@@ -59,12 +64,17 @@
 
 @if (M is null)
 {
-  <div class="container py-5 text-center text-muted">Loading…</div>
+  <!-- Top slim brand progress (animated, no text) -->
+  <div class="position-fixed top-0 start-0 w-100" style="height:3px;z-index:1080;">
+    <div class="progress" role="progressbar" aria-label="Page loading" style="height:3px;background:transparent;">
+      <div class="progress-bar progress-bar-striped progress-bar-animated" style="width:100%;background:var(--brand);"></div>
+    </div>
+  </div>
 }
 else
 {
   <!-- ================= HERO ================= -->
-  <section class="hero text-center text-lg-start">
+  <section class="hero bg-glow text-center text-lg-start">
     <div class="container">
       <div class="row align-items-center g-5">
         <div class="col-lg-6">

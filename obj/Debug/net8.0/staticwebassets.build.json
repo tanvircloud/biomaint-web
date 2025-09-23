@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "XcSh1VMUyoYB8scQ82DnxtgU9p6a4LNAz7eimguuInE=",
+  "Hash": "WIVf3Mf4oXE1rCyjwGecyFxX5DTntCCDZfl3je0gvXc=",
   "Source": "WebApp",
   "BasePath": "/",
   "Mode": "Root",
@@ -8660,6 +8660,25 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\appsettings.json"
+    },
+    {
+      "Identity": "C:\\dev\\app\\WebApp\\wwwroot\\assets\\logos\\BioMaint.svg",
+      "SourceId": "WebApp",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\dev\\app\\WebApp\\wwwroot\\",
+      "BasePath": "/",
+      "RelativePath": "assets/logos/BioMaint.svg",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\assets\\logos\\BioMaint.svg"
     },
     {
       "Identity": "C:\\dev\\app\\WebApp\\wwwroot\\content\\about.json",

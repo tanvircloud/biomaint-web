@@ -13,6 +13,10 @@
       "PackagePath": "staticwebassets\\appsettings.json"
     },
     {
+      "Id": "C:\\dev\\app\\WebApp\\wwwroot\\assets\\logos\\BioMaint.svg",
+      "PackagePath": "staticwebassets\\assets\\logos\\BioMaint.svg"
+    },
+    {
       "Id": "C:\\dev\\app\\WebApp\\wwwroot\\content\\about.json",
       "PackagePath": "staticwebassets\\content\\about.json"
     },

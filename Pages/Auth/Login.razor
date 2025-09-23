@@ -2,238 +2,316 @@
 @layout LoginLayout
 @using System.Text.Json
 @using System.Net.Http.Json
+@using Microsoft.JSInterop
 @inject HttpClient Http
 @inject NavigationManager Nav
 @inject IConfiguration Config
+@inject IJSRuntime JS
 
-<div class="d-flex flex-column justify-content-center align-items-center" 
-     style="min-height:100vh; background:var(--bg);">
+<div class="d-flex flex-column justify-content-center align-items-center bm-login-wrap bm-login"
+  style="min-height:100vh; background:var(--bg);">
+
+  <!-- Popup toast (theme-aware, auto close) -->
+  @if (ShowToastUI)
+  {
+    <div class="bm-toast bm-toast-@ToastKind" role="status" aria-live="assertive">
+      <div class="bm-toast-icon">
+        <i class="bi @ToastIcon"></i>
+      </div>
+      <div class="bm-toast-body">@ToastMessage</div>
+      <button type="button" class="bm-toast-close" @onclick="HideToast" aria-label="Close">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+  }
 
   <!-- Card -->
-  <div style="
+  <div class="bm-login-card bm-anim-fadeup" style="
       width:100%;max-width:380px;padding:40px;
-      background:var(--surface);color:var(--text);
-      border:1px solid var(--border);border-radius:16px;
+      background:var(--panel);color:var(--text);
+      border:1px solid var(--panel-border);border-radius:16px;
       box-shadow:var(--shadow-2);" role="form">
 
     <!-- Brand -->
     <div style="text-align:center;margin-bottom:25px;">
-      <img src="favicon.png" alt="BioMaint Logo" style="height:48px;margin-bottom:12px;" />
+      <img src="assets/logos/biomaint.svg" alt="BioMaint Logo"
+        style="width:48px;height:48px;margin-bottom:12px;display:inline-block;" />
       <h2 style="margin:0;color:var(--accent);">@AppName</h2>
       <p style="color:var(--text-muted);font-size:14px;margin:5px 0 0 0;">@Subtitle</p>
     </div>
 
+
     @if (!RequireMfa)
     {
-        <!-- Email -->
-        <div style="margin-bottom:18px;">
-          <label for="email" class="form-label" style="font-weight:600;color:var(--text);">Email *</label>
+      <!-- Email -->
+      <div style="margin-bottom:18px;">
+        <label for="email" class="form-label" style="font-weight:600;color:var(--text);">Email *</label>
+        <div class="input-group">
+          <span class="input-group-text" id="emailIcon"
+            style="background:var(--field-chip-bg);border-color:var(--field-border);">
+            <i class="bi bi-envelope"></i>
+          </span>
           <input id="email" @bind="Email" type="email" class="form-control"
-                 style="background:var(--surface);color:var(--text);border-color:var(--border);" 
-                 autocomplete="username" required />
-          @if (!string.IsNullOrEmpty(EmailError))
-          {
-            <div style="color:var(--danger);font-size:12px;margin-top:6px;" role="alert">@EmailError</div>
-          }
+            style="background:var(--field-bg);color:var(--text);border-color:var(--field-border);" autocomplete="username"
+            aria-describedby="emailIcon" required />
         </div>
+        @if (!string.IsNullOrEmpty(EmailError))
+        {
+          <div class="validation-message" role="alert">@EmailError</div>
+        }
+      </div>
 
-        <!-- Password -->
-        <div style="margin-bottom:18px;">
-          <label for="password" class="form-label" style="font-weight:600;color:var(--text);">Password *</label>
-          <div class="input-group" style="margin-top:5px;">
-            <input id="password" type="@(_obscure ? "password" : "text")" @bind="Password"
-                   class="form-control"
-                   style="background:var(--surface);color:var(--text);border-color:var(--border);" 
-                   autocomplete="current-password" required minlength="8" />
-            <button @onclick="ToggleObscure" type="button" class="btn btn-outline-secondary"
-                    style="border-color:var(--border);background:var(--surface-2);color:var(--text);">
-              @(_obscure ? "👁" : "🚫")
-            </button>
-          </div>
-          @if (!string.IsNullOrEmpty(PasswordError))
-          {
-            <div style="color:var(--danger);font-size:12px;margin-top:6px;" role="alert">@PasswordError</div>
-          }
+      <!-- Password -->
+      <div style="margin-bottom:18px;">
+        <label for="password" class="form-label" style="font-weight:600;color:var(--text);">Password *</label>
+        <div class="input-group" style="margin-top:5px;">
+          <input id="password" type="@(_obscure ? "password" : "text")" @bind="Password" class="form-control"
+            style="background:var(--field-bg);color:var(--text);border-color:var(--field-border);"
+            autocomplete="current-password" required minlength="8" />
+          <button @onclick="ToggleObscure" type="button" class="btn btn-outline-secondary" title="@ToggleTitle"
+            aria-label="@ToggleTitle"
+            style="border-color:var(--field-border);background:var(--field-chip-bg);color:var(--text);">
+            <i class="bi @ToggleIcon"></i>
+          </button>
         </div>
+        @if (!string.IsNullOrEmpty(PasswordError))
+        {
+          <div class="validation-message" role="alert">@PasswordError</div>
+        }
+      </div>
 
-        <!-- Remember Me -->
-        <div class="form-check mb-3">
-          <input class="form-check-input" type="checkbox" id="remember" @bind="RememberMe" />
-          <label class="form-check-label" for="remember" style="color:var(--text);">
-            Remember me
-          </label>
-        </div>
+      <!-- Remember Me -->
+      <div class="form-check mb-3">
+        <input class="form-check-input" type="checkbox" id="remember" @bind="RememberMe" />
+        <label class="form-check-label" for="remember" style="color:var(--text);">
+          Remember me
+        </label>
+      </div>
+
+      <!-- Consent copy (above button) -->
+      <p style="color:var(--text-muted);font-size:12px;margin:0 0 12px 0;">
+        By logging in, you agree to BioMaint’s
+        <a href="/terms" style="color:var(--accent);text-decoration:none;">Terms of Use</a>
+        and
+        <a href="/privacy" style="color:var(--accent);text-decoration:none;">Privacy Policy</a>.
+      </p>
     }
     else
     {
-        <!-- MFA Step -->
-        <div style="margin-bottom:18px;">
-          <label for="mfa" class="form-label" style="font-weight:600;color:var(--text);">Enter MFA Code *</label>
-          <input id="mfa" @bind="MfaCode" type="text" class="form-control"
-                 style="background:var(--surface);color:var(--text);border-color:var(--border);" 
-                 inputmode="numeric" maxlength="6" autocomplete="one-time-code" />
-        </div>
+      <!-- MFA Step -->
+      <div style="margin-bottom:18px;">
+        <label for="mfa" class="form-label" style="font-weight:600;color:var(--text);">Enter MFA Code *</label>
+        <input id="mfa" @bind="MfaCode" type="text" class="form-control"
+          style="background:var(--field-bg);color:var(--text);border-color:var(--field-border);" inputmode="numeric"
+          maxlength="6" autocomplete="one-time-code" />
+      </div>
     }
 
     <!-- Submit -->
-    <button @onclick="Submit" disabled="@IsLoading" class="btn w-100"
-            style="
+    <button @onclick="Submit" disabled="@IsLoading" class="btn w-100" style="
               padding:14px;
               background:var(--accent);color:var(--accent-contrast);
               border:none;border-radius:8px;font-size:16px;font-weight:600;
               cursor:pointer;transition:background .2s ease;">
+      @if (IsLoading)
+      {
+        <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+      }
       @(IsLoading ? "Processing..." : (RequireMfa ? "Verify Code" : "Log In"))
     </button>
 
-    <!-- Error -->
     @if (!string.IsNullOrEmpty(Error))
     {
-      <div class="alert text-center" role="alert"
-           style="
-             margin-top:15px;padding:10px;
-             background:var(--danger);color:var(--danger-contrast);
-             border:1px solid var(--danger);border-radius:6px;">
+      <div class="alert alert-danger text-center mt-3" role="alert">
         @Error
       </div>
     }
 
-    <!-- Forgot -->
     @if (!RequireMfa)
     {
-        <div style="text-align:center;margin-top:18px;">
-          <a href="/forgot-password" style="color:var(--accent);text-decoration:none;font-size:14px;">
-            Forgot your password?
-          </a>
-        </div>
+      <div style="text-align:center;margin-top:18px;">
+        <a href="/forgot-password" style="color:var(--accent);text-decoration:none;font-size:14px;">
+          Forgot your password?
+        </a>
+      </div>
     }
   </div>
 </div>
 
 @code {
-    private string AppName = "BioMaint";
-    private string Subtitle = "Log in to simplify tasks";
+  private string AppName = "BioMaint";
+  private string Subtitle = "Log in to simplify tasks";
 
-    private string Email = "";
-    private string Password = "";
-    private string MfaCode = "";
-    private bool RememberMe = false;
-    private bool _obscure = true;
-    private bool IsLoading = false;
-    private string? EmailError;
-    private string? PasswordError;
-    private string? Error;
-    private bool RequireMfa = false;
+  private string Email = "";
+  private string Password = "";
+  private string MfaCode = "";
+  private bool RememberMe = false;
+  private bool _obscure = true;
+  private bool IsLoading = false;
+  private string? EmailError;
+  private string? PasswordError;
+  private string? Error; // kept for compatibility, but we now show toast
+  private bool RequireMfa = false;
 
-    private string _returnUrl = "/app/dashboard";
+  // Toast state
+  private bool ShowToastUI = false;
+  private string ToastMessage = "";
+  private string ToastKind = "danger"; // danger | info | success
+  private string ToastIcon => ToastKind switch
+  {
+    "success" => "bi-check-circle",
+    "info" => "bi-info-circle",
+    _ => "bi-exclamation-triangle"
+  };
 
-    private string ApiBase => ((Config["ApiBaseUrl"] ?? "https://biomaint.com/").TrimEnd('/') + "/");
-    private string LoginUrl => $"{ApiBase}api/auth/login";
-    private string VerifyMfaUrl => $"{ApiBase}api/auth/verify-mfa";
+  private string _returnUrl = "/app/dashboard";
 
-    private static readonly System.Text.RegularExpressions.Regex EmailPattern =
-        new(@"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$",
-            System.Text.RegularExpressions.RegexOptions.Compiled | System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+  private string ApiBase => ((Config["ApiBaseUrl"] ?? "https://biomaint.com/").TrimEnd('/') + "/");
+  private string LoginUrl => $"{ApiBase}api/auth/login";
+  private string VerifyMfaUrl => $"{ApiBase}api/auth/verify-mfa";
 
-    protected override void OnInitialized()
+  private static readonly System.Text.RegularExpressions.Regex EmailPattern =
+  new(@"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$",
+  System.Text.RegularExpressions.RegexOptions.Compiled | System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+
+  protected override void OnInitialized()
+  {
+    _returnUrl = GetQueryParam(Nav.Uri, "returnUrl") ?? "/app/dashboard";
+  }
+
+  protected override async Task OnAfterRenderAsync(bool firstRender)
+  {
+    if (firstRender)
     {
-        _returnUrl = GetQueryParam(Nav.Uri, "returnUrl") ?? "/app/dashboard";
+      try
+      {
+        await JS.InvokeVoidAsync("BioMaintLogin.init");
+      }
+      catch { /* ignore if script not loaded */ }
+    }
+  }
+
+  private string ToggleIcon => _obscure ? "bi-eye" : "bi-eye-slash";
+  private string ToggleTitle => _obscure ? "Show password" : "Hide password";
+  private void ToggleObscure() => _obscure = !_obscure;
+
+  private async Task Submit()
+  {
+    if (!RequireMfa)
+    {
+      EmailError = string.IsNullOrWhiteSpace(Email) ? "Please enter your email" : null;
+      PasswordError = string.IsNullOrWhiteSpace(Password) ? "Please enter your password" : null;
+
+      if (EmailError is null && !EmailPattern.IsMatch(Email))
+        EmailError = "Please enter a valid email address";
+
+      if (PasswordError is null && Password.Length < 8)
+        PasswordError = "Password must be at least 8 characters long";
+
+      if (EmailError != null || PasswordError != null)
+        return;
+    }
+    else if (string.IsNullOrWhiteSpace(MfaCode))
+    {
+      ShowToast("Please enter the MFA code.", "danger");
+      return;
     }
 
-    private void ToggleObscure() => _obscure = !_obscure;
+    IsLoading = true;
+    Error = null;
 
-    private async Task Submit()
+    try
     {
-        if (!RequireMfa)
+      using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
+
+      if (!RequireMfa)
+      {
+        var payload = new { email = Email, password = Password, rememberMe = RememberMe };
+        var resp = await Http.PostAsJsonAsync(LoginUrl, payload, cts.Token);
+
+        if (resp.StatusCode == System.Net.HttpStatusCode.Forbidden)
         {
-            EmailError = string.IsNullOrWhiteSpace(Email) ? "Please enter your email" : null;
-            PasswordError = string.IsNullOrWhiteSpace(Password) ? "Please enter your password" : null;
-
-            if (EmailError is null && !EmailPattern.IsMatch(Email))
-                EmailError = "Please enter a valid email address";
-
-            if (PasswordError is null && Password.Length < 8)
-                PasswordError = "Password must be at least 8 characters long";
-
-            if (EmailError != null || PasswordError != null)
-                return;
-        }
-        else if (string.IsNullOrWhiteSpace(MfaCode))
-        {
-            Error = "Please enter the MFA code.";
-            return;
+          RequireMfa = true;
+          ShowToast("Multi-factor authentication required. Check your authenticator app.", "info");
+          return;
         }
 
-        IsLoading = true;
-        Error = null;
-
-        try
+        if (!resp.IsSuccessStatusCode)
         {
-            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
-
-            if (!RequireMfa)
-            {
-                var payload = new { email = Email, password = Password, rememberMe = RememberMe };
-                var resp = await Http.PostAsJsonAsync(LoginUrl, payload, cts.Token);
-
-                if (resp.StatusCode == System.Net.HttpStatusCode.Forbidden)
-                {
-                    RequireMfa = true;
-                    return;
-                }
-
-                if (!resp.IsSuccessStatusCode)
-                {
-                    Error = "Invalid credentials.";
-                    return;
-                }
-
-                Nav.NavigateTo(_returnUrl, forceLoad: true);
-            }
-            else
-            {
-                var payload = new { email = Email, code = MfaCode };
-                var resp = await Http.PostAsJsonAsync(VerifyMfaUrl, payload, cts.Token);
-
-                if (!resp.IsSuccessStatusCode)
-                {
-                    Error = "Invalid MFA code.";
-                    return;
-                }
-
-                Nav.NavigateTo(_returnUrl, forceLoad: true);
-            }
+          ShowToast("Invalid email or password.", "danger");
+          return;
         }
-        catch (TaskCanceledException)
+
+        ShowToast("Welcome back!", "success");
+        Nav.NavigateTo(_returnUrl, forceLoad: true);
+      }
+      else
+      {
+        var payload = new { email = Email, code = MfaCode };
+        var resp = await Http.PostAsJsonAsync(VerifyMfaUrl, payload, cts.Token);
+
+        if (!resp.IsSuccessStatusCode)
         {
-            Error = "Request timed out. Please try again.";
+          ShowToast("Invalid MFA code.", "danger");
+          return;
         }
-        catch (HttpRequestException)
-        {
-            Error = "Cannot reach the API. In development, enable CORS for http://localhost and check ApiBaseUrl.";
-        }
-        catch
-        {
-            Error = "Server unavailable. Try again later.";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+
+        ShowToast("Verified!", "success");
+        Nav.NavigateTo(_returnUrl, forceLoad: true);
+      }
     }
-
-    private static string? GetQueryParam(string uri, string key)
+    catch (TaskCanceledException)
     {
-        var qIndex = uri.IndexOf('?', StringComparison.Ordinal);
-        if (qIndex < 0) return null;
-        var query = uri[(qIndex + 1)..];
-        foreach (var part in query.Split('&', StringSplitOptions.RemoveEmptyEntries))
-        {
-            var kv = part.Split('=', 2);
-            if (Uri.UnescapeDataString(kv[0]) == key)
-                return kv.Length > 1 ? Uri.UnescapeDataString(kv[1]) : "";
-        }
-        return null;
+      ShowToast("Request timed out. Please try again.", "danger");
     }
+    catch (HttpRequestException)
+    {
+      ShowToast("Cannot reach the API. In development, enable CORS for http://localhost and check ApiBaseUrl.", "danger");
+    }
+    catch
+    {
+      ShowToast("Server unavailable. Try again later.", "danger");
+    }
+    finally
+    {
+      IsLoading = false;
+    }
+  }
 
-    private sealed record LoginResponse(string AccessToken);
+  private void ShowToast(string message, string kind = "danger")
+  {
+    ToastMessage = message;
+    ToastKind = kind;
+    ShowToastUI = true;
+    _ = AutoHideToastAsync();
+  }
+
+  private async Task AutoHideToastAsync()
+  {
+    try
+    {
+      await Task.Delay(4000);
+      ShowToastUI = false;
+      await InvokeAsync(StateHasChanged);
+    }
+    catch { /* ignore */ }
+  }
+
+  private void HideToast() => ShowToastUI = false;
+
+  private static string? GetQueryParam(string uri, string key)
+  {
+    var qIndex = uri.IndexOf('?', StringComparison.Ordinal);
+    if (qIndex < 0) return null;
+    var query = uri[(qIndex + 1)..];
+    foreach (var part in query.Split('&', StringSplitOptions.RemoveEmptyEntries))
+    {
+      var kv = part.Split('=', 2);
+      if (Uri.UnescapeDataString(kv[0]) == key)
+        return kv.Length > 1 ? Uri.UnescapeDataString(kv[1]) : "";
+    }
+    return null;
+  }
+
+  private sealed record LoginResponse(string AccessToken);
 }

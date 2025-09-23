@@ -19,13 +19,13 @@
   let inited = false;
 
   // ---------- helpers ----------
-  const hasMM   = !!w.matchMedia;
-  const mqDark  = hasMM ? w.matchMedia('(prefers-color-scheme: dark)')  : null;
+  const hasMM = !!w.matchMedia;
+  const mqDark = hasMM ? w.matchMedia('(prefers-color-scheme: dark)') : null;
   const mqLight = hasMM ? w.matchMedia('(prefers-color-scheme: light)') : null;
   const prefersDark = () => !!(mqDark && mqDark.matches);
 
   const safeGetItem = (k) => { try { return w.localStorage.getItem(k); } catch { return null; } };
-  const safeSetItem = (k, v) => { try { w.localStorage.setItem(k, v); } catch {} };
+  const safeSetItem = (k, v) => { try { w.localStorage.setItem(k, v); } catch { } };
   const normalize = (v) => (v === 'light' || v === 'dark' || v === 'auto') ? v : 'auto';
 
   // ---------- core ----------
@@ -36,7 +36,7 @@
 
   function setAttrs(effective) {
     d.documentElement.setAttribute('data-bs-theme', effective);
-    try { d.documentElement.style.colorScheme = effective; } catch {}
+    try { d.documentElement.style.colorScheme = effective; } catch { }
 
     const meta = d.querySelector("meta[name='theme-color']");
     if (meta) meta.setAttribute('content', effective === 'dark' ? '#0a0a0a' : '#10a37f');
@@ -48,9 +48,9 @@
     d.dispatchEvent(new CustomEvent('biothemechange', { detail: { mode, effective } }));
   }
 
-  function getSaved()     { return normalize(safeGetItem(KEY)) || 'auto'; }
+  function getSaved() { return normalize(safeGetItem(KEY)) || 'auto'; }
   function getEffective() { return resolve(getSaved()); }
-  function set(mode)      { const m = normalize(mode); safeSetItem(KEY, m); apply(m); }
+  function set(mode) { const m = normalize(mode); safeSetItem(KEY, m); apply(m); }
 
   function init() {
     if (inited) return;
@@ -81,19 +81,21 @@
   }
 
   function cycle() {
-    const cur  = getSaved();
+    const cur = getSaved();
     const next = cur === 'light' ? 'dark' : (cur === 'dark' ? 'auto' : 'light');
     set(next);
     return next;
   }
 
   // public API
-  w.BioTheme = { init, set, getSaved, getEffective, cycle, onChange: (cb) => {
-    if (typeof cb !== 'function') return () => {};
-    const handler = (e) => cb(e.detail);
-    d.addEventListener('biothemechange', handler);
-    return () => d.removeEventListener('biothemechange', handler);
-  }};
+  w.BioTheme = {
+    init, set, getSaved, getEffective, cycle, onChange: (cb) => {
+      if (typeof cb !== 'function') return () => { };
+      const handler = (e) => cb(e.detail);
+      d.addEventListener('biothemechange', handler);
+      return () => d.removeEventListener('biothemechange', handler);
+    }
+  };
 
   // auto-init immediately (safe/idempotent)
   init();
@@ -106,8 +108,8 @@
 // --------------------------------------------------------------------------
 (function (w, d) {
   'use strict';
-  const $  = (sel, root=d) => root.querySelector(sel);
-  const $$ = (sel, root=d) => Array.from(root.querySelectorAll(sel));
+  const $ = (sel, root = d) => root.querySelector(sel);
+  const $$ = (sel, root = d) => Array.from(root.querySelectorAll(sel));
   const hasBootstrap = () => !!w.bootstrap;
 
   // Run an initializer once a selector exists; also works for nodes added later
@@ -154,24 +156,24 @@
   function initBurgerSync() {
     whenReady('#navbarNav', () => {
       const toggler = $('#bmToggler');
-      const menu    = $('#navbarNav');
+      const menu = $('#navbarNav');
       if (!(toggler && menu)) return;
-      menu.addEventListener('show.bs.collapse',   () => toggler.classList.add('open'));
-      menu.addEventListener('shown.bs.collapse',  () => toggler.setAttribute('aria-expanded','true'));
-      menu.addEventListener('hide.bs.collapse',   () => toggler.classList.remove('open'));
-      menu.addEventListener('hidden.bs.collapse', () => toggler.setAttribute('aria-expanded','false'));
+      menu.addEventListener('show.bs.collapse', () => toggler.classList.add('open'));
+      menu.addEventListener('shown.bs.collapse', () => toggler.setAttribute('aria-expanded', 'true'));
+      menu.addEventListener('hide.bs.collapse', () => toggler.classList.remove('open'));
+      menu.addEventListener('hidden.bs.collapse', () => toggler.setAttribute('aria-expanded', 'false'));
     });
   }
 
   function initTestimonials() {
     whenReady('#testiTrack', () => {
       const track = $('#testiTrack');
-      const prev  = $('#tPrev');
-      const next  = $('#tNext');
+      const prev = $('#tPrev');
+      const next = $('#tNext');
       if (!(track && prev && next)) return;
       const step = () => Math.min(track.clientWidth * 0.9, 600);
       prev.addEventListener('click', () => track.scrollBy({ left: -step(), behavior: 'smooth' }));
-      next.addEventListener('click', () => track.scrollBy({ left:  step(), behavior: 'smooth' }));
+      next.addEventListener('click', () => track.scrollBy({ left: step(), behavior: 'smooth' }));
     });
   }
 
@@ -186,7 +188,7 @@
         }
       }, { threshold: .12 });
     } catch {
-      io = { observe: el => el.classList.add('in'), unobserve: () => {} };
+      io = { observe: el => el.classList.add('in'), unobserve: () => { } };
     }
     const bind = (el) => {
       if (!el || seen.has(el) || el.classList.contains('in')) return;
@@ -240,27 +242,102 @@
   }
 
   function initThemeControls() {
-    const btn   = $('#themeBtn');
-    const icon  = $('#themeIcon');
-    const label = $('#themeModeLabel'); // optional
+    // Bind when available, and re-bind if Blazor re-renders
+    whenReady('#themeMenuBtn', (menuBtn) => {
+      if (menuBtn.dataset.init) return;
+      menuBtn.dataset.init = '1';
 
-    const sync = ({ mode, effective }) => {
-      if (icon)  icon.className = (effective === 'dark') ? 'bi bi-sun' : 'bi bi-moon-stars';
-      if (label) label.textContent = (mode === 'auto') ? 'Auto' : (mode === 'dark' ? 'Dark' : 'Light');
-      if (btn)   btn.setAttribute('data-mode', mode);
-    };
+      const root = menuBtn.closest('nav') || document;
+      const menu = root.querySelector('#themeMenu');
+      const curIcon = root.querySelector('#themeCurIcon');
+      const curLabel = root.querySelector('#themeCurLabel');
+      const items = menu ? Array.from(menu.querySelectorAll('[data-mode]')) : [];
 
-    try { sync({ mode: w.BioTheme?.getSaved?.() || 'auto', effective: w.BioTheme?.getEffective?.() || 'dark' }); } catch {}
-    d.addEventListener('biothemechange', (e) => sync(e.detail));
-    d.addEventListener('biothemeinit',   (e) => sync(e.detail));
+      // Icon mapping by SELECTED MODE (not effective)
+      const ICON_BY_MODE = {
+        light: 'bi bi-sun',
+        dark: 'bi bi-moon-stars',
+        auto: 'bi bi-circle-half'
+      };
 
-    if (btn && w.BioTheme?.cycle) {
-      btn.addEventListener('click', () => {
-        const next = w.BioTheme.cycle();
-        btn.title = `Theme: ${next[0].toUpperCase()}${next.slice(1)}`;
-      });
-    }
+      const render = () => {
+        const mode = (window.BioTheme?.getSaved?.() || 'auto');
+        const eff = (window.BioTheme?.getEffective?.() || 'light');
+
+        // Button face reflects the chosen MODE
+        if (curIcon) curIcon.className = `${ICON_BY_MODE[mode]} me-2`;
+        if (curLabel) curLabel.textContent = (mode === 'auto') ? 'Auto' : (mode === 'dark' ? 'Dark' : 'Light');
+
+        menuBtn.dataset.mode = mode;
+        menuBtn.title = `Theme: ${mode} (effective ${eff})`;
+        menuBtn.setAttribute('aria-label', menuBtn.title);
+
+        // Highlight active item
+        for (const el of items) {
+          const active = el.getAttribute('data-mode') === mode;
+          el.classList.toggle('active', active);
+          el.setAttribute('aria-checked', active ? 'true' : 'false');
+        }
+      };
+
+      if (menu) {
+        menu.addEventListener('click', (e) => {
+          const btn = e.target.closest('[data-mode]');
+          if (!btn) return;
+          e.preventDefault();
+          e.stopPropagation();
+
+          const m = btn.getAttribute('data-mode');
+          if (m) window.BioTheme?.set?.(m);           // persists + dispatches event
+          if (window.bootstrap) {
+            const dd = bootstrap.Dropdown.getOrCreateInstance(menuBtn);
+            dd.hide();
+          }
+        }, { passive: false });
+      }
+
+      document.addEventListener('biothemeinit', render);
+      document.addEventListener('biothemechange', render);
+      render();
+    }, { once: false });
   }
+
+  // Keeps the footer from flashing by sizing <main> to fill the viewport
+  function initLayoutSizing() {
+    // Re-run if Blazor swaps out DOM; don't double-bind the same <main>
+    whenReady('main.bm-main, main', (mainEl) => {
+      if (!mainEl || mainEl.dataset.sized) return;
+      mainEl.dataset.sized = '1';
+
+      const headerEl = $('header, .bm-header, .navbar.sticky-top');
+      const footerEl = $('footer, .bm-footer, .site-footer');
+
+      const vv = window.visualViewport;
+      const ro = new ResizeObserver(update);
+
+      if (headerEl) ro.observe(headerEl);
+      if (footerEl) ro.observe(footerEl);
+
+      window.addEventListener('resize', update, { passive: true });
+      if (vv) vv.addEventListener('resize', update, { passive: true });
+
+      function viewportH() {
+        return (vv && vv.height) || window.innerHeight || document.documentElement.clientHeight;
+      }
+
+      function update() {
+        const hH = headerEl?.offsetHeight || 0;
+        const fH = footerEl?.offsetHeight || 0;
+        const min = Math.max(0, viewportH() - hH - fH);
+        const v = `${min}px`;
+        if (mainEl.style.minHeight !== v) mainEl.style.minHeight = v;
+      }
+
+      // first paint
+      update();
+    }, { once: false });
+  }
+
 
   function init() {
     initStickyHeader();
@@ -270,6 +347,8 @@
     initSmoothAnchors();
     initLogosTrack();
     initThemeControls();
+      // NEW: ensure footer doesn't flash during page load
+    initLayoutSizing();
   }
 
   w.BioUI = { init };

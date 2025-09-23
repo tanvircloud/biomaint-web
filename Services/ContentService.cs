@@ -1,6 +1,8 @@
+using System.Collections.Concurrent;
 using System.Text.Json;
 using WebApp.Models;
 using System.Linq;
+using System.Threading;
 
 namespace WebApp.Services;
 
@@ -14,21 +16,99 @@ public sealed class ContentService
         AllowTrailingCommas = true
     };
 
+    // In-flight de-duplication for the same JSON (e.g., "landing")
+    // Ensures concurrent calls only download once.
+    private readonly ConcurrentDictionary<string, Lazy<Task<byte[]?>>> _inflight = new();
+
+    // Small memory cache to avoid refetching the same JSON right after first load.
+    private readonly ConcurrentDictionary<string, (byte[] Bytes, DateTimeOffset Exp)> _cache = new();
+    private static readonly TimeSpan DefaultTtl = TimeSpan.FromSeconds(30);
+
     public ContentService(HttpClient http) => _http = http;
 
     // ------------------------------------------------------------
-    // Base loader
+    // Unified fetch with in-flight coalescing + short-ttl memory cache
+    // ------------------------------------------------------------
+    private async Task<byte[]?> FetchBytesAsync(string name, CancellationToken ct)
+    {
+        // 1) short-lived cache hit?
+        if (_cache.TryGetValue(name, out var entry) && entry.Exp > DateTimeOffset.UtcNow)
+            return entry.Bytes;
+
+        // 2) coalesce concurrent downloads
+        var lazy = _inflight.GetOrAdd(
+            name,
+            key => new Lazy<Task<byte[]?>>(async () =>
+            {
+                try
+                {
+                    var url = $"content/{key}.json";
+                    using var resp = await _http.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, ct);
+                    if (!resp.IsSuccessStatusCode) return null;
+
+                    await using var stream = await resp.Content.ReadAsStreamAsync(ct);
+                    // Buffer to memory so we can parse multiple times (create fresh JsonDocument per caller)
+                    using var ms = new MemoryStream(capacity: (int)(resp.Content.Headers.ContentLength ?? 0));
+                    await stream.CopyToAsync(ms, ct);
+                    var bytes = ms.ToArray();
+
+                    // Put into short TTL cache
+                    _cache[key] = (bytes, DateTimeOffset.UtcNow.Add(DefaultTtl));
+                    return bytes;
+                }
+                catch
+                {
+                    return null;
+                }
+            }, System.Threading.LazyThreadSafetyMode.ExecutionAndPublication)
+        );
+
+        try
+        {
+            var bytes = await lazy.Value;
+            return bytes;
+        }
+        finally
+        {
+            // Clean up in-flight slot so future fetches can re-start if needed
+            _inflight.TryRemove(name, out _);
+        }
+    }
+
+    /// <summary>
+    /// Optional: warm critical JSON in parallel (landing, header, footer).
+    /// Safe to call & forget; failures are ignored.
+    /// </summary>
+    public async Task PreloadCriticalAsync(CancellationToken ct = default)
+    {
+        try
+        {
+            var t1 = FetchBytesAsync("landing", ct);
+            var t2 = FetchBytesAsync("nav.header", ct);
+            var t3 = FetchBytesAsync("nav.footer", ct);
+            await Task.WhenAll(t1, t2, t3);
+        }
+        catch { /* ignore */ }
+    }
+
+    // ------------------------------------------------------------
+    // Base loader (kept) now backed by the coalesced fetch
     // ------------------------------------------------------------
     public async Task<T?> GetAsync<T>(string name, CancellationToken ct = default)
     {
         try
         {
-            var url = $"content/{name}.json";
-            using var resp = await _http.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, ct);
-            if (!resp.IsSuccessStatusCode) return default;
+            var bytes = await FetchBytesAsync(name, ct);
+            if (bytes is null) return default;
 
-            await using var stream = await resp.Content.ReadAsStreamAsync(ct);
-            return await JsonSerializer.DeserializeAsync<T>(stream, JsonOpts, ct);
+            // Give callers an independent JsonDocument so they can dispose safely.
+            if (typeof(T) == typeof(JsonDocument))
+            {
+                var doc = JsonDocument.Parse(bytes);
+                return (T)(object)doc;
+            }
+
+            return JsonSerializer.Deserialize<T>(bytes, JsonOpts);
         }
         catch
         {
