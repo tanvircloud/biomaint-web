@@ -980,51 +980,46 @@ html[data-bs-theme="light"]{
 .bm-login input, .bm-login button{ font-size:16px; }
 
 
-/* === Pricing (scoped) – additions ====================================== */
+/* === Pricing (scoped) – final =========================================== */
 
-/* Stronger head text balance */
+/* Header balance */
 .pricing-head h1{ font-weight:700; letter-spacing:-.01em }
 .pricing-head p{ font-weight:500 }
 
-/* "Compare" title above matrix */
+/* "Compare" title */
 .compare-title{
-  font-weight:700;
-  letter-spacing:-.01em;
-  margin: 0 0 10px 0;
-  font-size: clamp(22px, 1.4vw + 18px, 30px);
+  font-weight:700; letter-spacing:-.01em;
+  margin:0 0 10px 0;
+  font-size:clamp(22px,1.4vw + 18px,30px);
 }
 
-/* Glow frames */
-.glow-border{
+/* -----------------------------------------------------------------------
+   CARDS (keep colorful border, control background, fix hover)
+------------------------------------------------------------------------ */
+.pricing-cards .plan-card{
+  --plan-card-bg: #1B2126;                  /* default (dark) */
+  /* Gradient border kept; background inside stays flat */
   background:
-    linear-gradient(var(--card), var(--card)) padding-box,
-    linear-gradient(135deg, rgba(16,185,129,.38), rgba(96,165,250,.38)) border-box;
-  border:1px solid transparent !important;
-  border-radius:18px !important;
+    linear-gradient(var(--plan-card-bg), var(--plan-card-bg)) padding-box,
+    linear-gradient(135deg, rgba(16,185,129,.45), rgba(96,165,250,.45), rgba(167,139,250,.45)) border-box;
+  border:1px solid transparent;
+  border-radius:18px;
   box-shadow: var(--elev);
+  transition:transform .18s ease, box-shadow .18s ease, background .2s ease;
 }
-.glow-border-strong{
-  background:
-    linear-gradient(var(--card), var(--card)) padding-box,
-    linear-gradient(135deg, rgba(16,185,129,.55), rgba(96,165,250,.55)) border-box;
-  border:2px solid transparent !important;
-  border-radius:18px !important;
-  box-shadow: var(--elev-lg);
+html[data-bs-theme="light"] .pricing-cards .plan-card{
+  --plan-card-bg:#ffffff;                   /* white card in light mode */
 }
+html[data-bs-theme="dark"] .pricing-cards .plan-card{
+  --plan-card-bg:#1B2126;                   /* lifted charcoal in dark */
+}
+.pricing-cards .plan-card:hover{ transform: translateY(-3px) } /* keep border colors unchanged */
 
-/* Pro card ribbon */
-.ribbon-most{
-  position:absolute; top:10px; right:12px;
-  padding:.28rem .6rem; border-radius:999px;
-  font-size:.675rem; font-weight:800; letter-spacing:.04em; text-transform:uppercase;
-  color:var(--accent-contrast);
-  background: linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 72%, #4ade80));
-  box-shadow: 0 2px 10px rgba(0,0,0,.22), inset 0 0 0 1px rgba(255,255,255,.12);
-}
+/* Bold plan names on cards */
+.plan-title{ font-weight:800; letter-spacing:-.01em }
 
-/* Cards */
-.pricing-cards .plan-card{ border-radius:18px; transition:transform .18s ease, box-shadow .18s ease }
-.pricing-cards .plan-card:hover{ transform: translateY(-3px) }
+/* Optional stronger glow only for "highlight" (Pro) */
+.plan--pro{ box-shadow: var(--elev-lg); }
 
 /* Price styles */
 .plan-price{ font-weight:800; letter-spacing:-.02em; line-height:1; font-size:clamp(34px,5vw,48px) }
@@ -1032,64 +1027,113 @@ html[data-bs-theme="light"]{
 .plan-unit{ font-size:.95rem; font-weight:700; opacity:.75; margin-left:.125rem }
 .plan-cta .btn{ height:44px; border-radius:12px; font-weight:700; padding-inline:18px }
 
-/* Matrix shell */
-.matrix-wrap{ border-radius:18px; overflow:hidden }
+/* "Most popular" ribbon (kept) */
+.ribbon-most{
+  position:absolute; top:10px; right:12px;
+  padding:.28rem .6rem; border-radius:999px;
+  font-size:.675rem; font-weight:800; letter-spacing:.04em; text-transform:uppercase;
+  color:var(--accent-contrast);
+  background:linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 72%, #4ade80));
+  box-shadow:0 2px 10px rgba(0,0,0,.22), inset 0 0 0 1px rgba(255,255,255,.12);
+}
 
-/* Header (force background; fixes bleed/stripe you circled) */
-.matrix-table > thead.matrix-header > tr > th{
-  background: var(--surface-2) !important;
+/* -----------------------------------------------------------------------
+   MATRIX (keep colorful outer border, flat body bg, unified hover)
+------------------------------------------------------------------------ */
+.matrix-wrap{
+  --matrix-bg: var(--surface);              /* base shell fill */
+  background:
+    linear-gradient(var(--matrix-bg), var(--matrix-bg)) padding-box,
+    linear-gradient(135deg, rgba(16,185,129,.45), rgba(96,165,250,.45), rgba(167,139,250,.45)) border-box;
+  border:1px solid transparent;
+  border-radius:18px;
+  overflow:hidden;
+}
+
+/* Header: white in light / surface in dark */
+.matrix-table>thead.matrix-header>tr>th{
+  background: var(--surface) !important;    /* light = white, dark = page surface */
   color: var(--text);
   border-bottom:1px solid var(--border);
   white-space:nowrap;
-  font-weight:700;
+  font-weight:800;                           /* plan names bold */
 }
 
-/* Sub-labels under plan names */
-.matrix-sub{ margin-top:2px; }
-
-/* Make table body NOT bold */
-.matrix-table tbody th,
-.matrix-table tbody td{ font-weight:400 }
-
-/* Sticky first column */
-.matrix-table .matrix-sticky-left{
-  position: sticky; left: 0; z-index: 2;
-  background: var(--surface);
+/* Body row backgrounds (no stripes) */
+.matrix-table{
+  --row-bg:#191E22;                         /* dark default */
+  --hover-bg: color-mix(in srgb, var(--row-bg) 88%, white);
+}
+html[data-bs-theme="light"] .matrix-table{
+  --row-bg:#F3F5F8;                         /* light grey requested */
+  --hover-bg:#EEF2F7;                       /* single, soft hover */
 }
 
-/* Tick/dash: neutral color (no brand) */
-.matrix-table td.tick{
-  text-align:center;
+/* Normalize every cell to the same background and border */
+.matrix-table tbody tr > *{
+  background: var(--row-bg) !important;
+  border-color: var(--border);
   font-weight:400;
-  font-size:1.05rem;
-  letter-spacing:.01em;
+}
+
+/* Remove Bootstrap stripes completely */
+.matrix-table.table-striped>tbody>tr:nth-of-type(odd)>*{
+  background: var(--row-bg) !important;
+}
+
+/* Unified hover shade (both themes) */
+.matrix-table.table-hover>tbody>tr:hover>*{
+  background: var(--hover-bg) !important;
+}
+
+/* Sticky first column: always match the row color (normal + hover) */
+.matrix-table .matrix-sticky-left{
+  position:sticky; left:0; z-index:2;
+  background: var(--row-bg) !important;
+  background-clip: padding-box;
+  box-shadow:none;
+}
+.matrix-table.table-hover>tbody>tr:hover>.matrix-sticky-left{
+  background: var(--hover-bg) !important;
+}
+/* Header cell of sticky column follows header color */
+.matrix-table thead .matrix-sticky-left{
+  background: var(--surface) !important;
+}
+
+/* Ticks/dashes: neutral text color (no brand) */
+.matrix-table td.tick{
+  text-align:center; font-weight:400; font-size:1.05rem; letter-spacing:.01em;
   color: var(--text);
 }
 
 /* CTA row */
 .matrix-cta-row .btn{ border-radius:10px; padding:6px 12px; font-weight:700 }
 
-/* Use the site-wide glow already defined */
-.bg-glow{ position: relative; isolation: isolate; }
+/* -----------------------------------------------------------------------
+   PAGE GLOW (unchanged)
+------------------------------------------------------------------------ */
+.bg-glow{ position:relative; isolation:isolate }
 .bg-glow::before, .bg-glow::after{
-  content:""; position:absolute; z-index:-1; pointer-events:none; filter: blur(36px); border-radius:50%;
+  content:""; position:absolute; z-index:-1; pointer-events:none;
+  filter: blur(36px); border-radius:50%;
 }
 .bg-glow::before{
-  width: 740px; height: 740px; right:-220px; top:-240px;
-  background: radial-gradient(closest-side, color-mix(in srgb, var(--blue) 30%, transparent), transparent 70%);
+  width:740px; height:740px; right:-220px; top:-240px;
+  background: radial-gradient(closest-side, var(--glow-top), transparent 70%);
 }
 .bg-glow::after{
-  width: 700px; height: 700px; left:-220px; bottom:-260px;
+  width:700px; height:700px; left:-220px; bottom:-260px;
   background:
-    radial-gradient(closest-side, color-mix(in srgb, var(--brand) 28%, transparent), transparent 72%),
-    radial-gradient(closest-side, color-mix(in srgb, var(--violet) 22%, transparent), transparent 75%);
+    radial-gradient(closest-side, var(--glow-bottom), transparent 72%),
+    radial-gradient(closest-side, var(--glow-side),   transparent 75%);
 }
-@media (max-width: 576px){
+
+/* Mobile */
+@media (max-width:576px){
   .ribbon-most{ right:10px; top:8px; font-size:.62rem; padding:.24rem .52rem }
   .matrix-cta-row .btn{ width:100% }
-  .bg-glow::before{ width:420px; height:420px; right:-120px; top:-140px; }
-  .bg-glow::after { width:380px; height:380px; left:-110px; bottom:-140px; }
+  .bg-glow::before{ width:420px; height:420px; right:-120px; top:-140px }
+  .bg-glow::after { width:380px; height:380px; left:-110px; bottom:-140px }
 }
-
-
 
