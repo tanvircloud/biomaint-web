@@ -1,0 +1,78 @@
+{
+  "plans": [
+    {
+      "id": "starter",
+      "name": "Starter",
+      "tagline": "Core essentials",
+      "price": {
+        "USD": 35,
+        "BDT": 4200
+      },
+      "limits": {
+        "sites": 5,
+        "users": 20
+      },
+      "features": [
+        "Asset / Equipment Tracking",
+        "Work Orders & Service Requests",
+        "Preventive Maintenance",
+        "Reports & Dashboard"
+      ],
+      "support": "Standard"
+    },
+    {
+      "id": "pro",
+      "name": "Pro",
+      "tagline": "Advanced workflows",
+      "price": {
+        "USD": 65,
+        "BDT": 7800
+      },
+      "limits": {
+        "sites": 15,
+        "users": 60
+      },
+      "features": [
+        "Asset / Equipment Tracking",
+        "Work Orders & Service Requests",
+        "Preventive Maintenance",
+        "Reports & Dashboard",
+        "Inventory & Spare Parts Management",
+        "Vendor / Contract Management",
+        "Advanced Analytics / Dashboards",
+        "Mobile App (QR, photos, updates)",
+        "Multi-Site Support (up to 15 sites)",
+        "Unlimited Assets"
+      ],
+      "support": "Priority",
+      "highlight": true
+    },
+    {
+      "id": "enterprise",
+      "name": "Enterprise",
+      "tagline": "Full power + SLA",
+      "price": {
+        "USD": 0,
+        "BDT": 0,
+        "custom": "Price on Request"
+      },
+      "limits": {
+        "sites": "Unlimited",
+        "users": "Unlimited"
+      },
+      "features": [
+        "Everything in Pro",
+        "API Integrations (LIS, ERP, HR, etc.)",
+        "Custom Workflows & Fields",
+        "Unlimited Assets & Users",
+        "Dedicated SLA & Premium Support"
+      ],
+      "support": "Premium (SLA)"
+    }
+  ],
+  "allPlansInclude": [
+    "Unlimited service requests — any staff member can submit",
+    "Mobile access — scan QR codes, update work, upload photos",
+    "Regular updates & security patches"
+  ]
+}

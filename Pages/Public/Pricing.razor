@@ -1,0 +1,385 @@
+@page "/pricing"
+@layout PublicLayout
+@using System.Text.Json
+@using System.Text.Json.Serialization
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.Linq
+@inject WebApp.Services.ContentService Content
+@inject IJSRuntime JS
+
+<section class="py-5 bg-glow">
+  <div class="container">
+    <!-- Page header (left-aligned) -->
+    <div class="pricing-head mb-4 text-start">
+      <h1 class="mb-1">Simple, transparent pricing</h1>
+      <p class="text-muted mb-0">
+        Flexible plans designed to fit your goals and budget—scaling from core essentials to enterprise integrations.
+      </p>
+    </div>
+
+    @if (!_ready || _starter is null || _pro is null || _ent is null)
+    {
+      <div class="alert alert-info" role="status">Loading pricing…</div>
+    }
+    else if (_ready && _starter is Plan starter && _pro is Plan pro && _ent is Plan ent)
+    {
+      <!-- Plan cards -->
+      <div class="row g-3 mb-5 pricing-cards">
+        <!-- Starter -->
+        <div class="col-12 col-md-6 col-lg-4">
+          <div class="card h-100 plan-card glow-border position-relative">
+            @if (starter.Highlight) { <span class="ribbon-most">Most Popular</span> }
+            <div class="card-body text-center">
+              <h5 class="mb-1">@starter.Name</h5>
+              @if (!string.IsNullOrWhiteSpace(starter.Tagline))
+              { <p class="text-muted small mb-2">@starter.Tagline</p> }
+              <div class="plan-price">
+                @FormatPrice(starter)
+                @if (!HasCustomPrice(starter)) { <span class="plan-unit">/mo</span> }
+              </div>
+              @if (starter.Limits is not null)
+              { <div class="text-muted small mt-1">@LimitsSummary(starter)</div> }
+              <div class="plan-cta">
+                <a class="btn btn-primary fw-bold w-100 mt-3" href="@TrialHref">Try for Free</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pro -->
+        <div class="col-12 col-md-6 col-lg-4">
+          <div class="card h-100 plan-card @(pro.Highlight ? "glow-border-strong plan--pro" : "glow-border") position-relative">
+            @if (pro.Highlight) { <span class="ribbon-most">Most Popular</span> }
+            <div class="card-body text-center">
+              <h5 class="mb-1">@pro.Name</h5>
+              @if (!string.IsNullOrWhiteSpace(pro.Tagline))
+              { <p class="text-muted small mb-2">@pro.Tagline</p> }
+              <div class="plan-price">
+                @FormatPrice(pro)
+                @if (!HasCustomPrice(pro)) { <span class="plan-unit">/mo</span> }
+              </div>
+              @if (pro.Limits is not null)
+              { <div class="text-muted small mt-1">@LimitsSummary(pro)</div> }
+              <div class="plan-cta">
+                <a class="btn btn-primary fw-bold w-100 mt-3" href="@TrialHref">Try for Free</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Enterprise -->
+        <div class="col-12 col-lg-4">
+          <div class="card h-100 plan-card glow-border position-relative">
+            <div class="card-body text-center">
+              <h5 class="mb-1">@ent.Name</h5>
+              @if (!string.IsNullOrWhiteSpace(ent.Tagline))
+              { <p class="text-muted small mb-2">@ent.Tagline</p> }
+              <div class="plan-price">
+                @FormatPrice(ent)
+                @if (!HasCustomPrice(ent)) { <span class="plan-unit">/mo</span> }
+              </div>
+              @if (ent.Limits is not null)
+              { <div class="text-muted small mt-1">@LimitsSummary(ent)</div> }
+              <div class="plan-cta">
+                @if (HasCustomPrice(ent))
+                { <a class="btn btn-outline-primary fw-bold w-100 mt-3" href="/contact">Contact Us</a> }
+                else
+                { <a class="btn btn-primary fw-bold w-100 mt-3" href="@TrialHref">Try for Free</a> }
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Feature matrix -->
+      <div class="pricing-matrix mb-3">
+        <h2 class="compare-title">Compare plans</h2>
+        <div class="matrix-wrap glow-border">
+          <div class="table-responsive">
+            <table class="table table-striped table-hover align-middle mb-0 matrix-table">
+              <thead class="matrix-header">
+                <tr>
+                  <th scope="col" class="matrix-sticky-left" style="min-width:260px">Feature / Plan</th>
+                  <th scope="col" class="text-center">
+                    @starter.Name
+                    <div class="matrix-sub small text-muted">What’s included?</div>
+                  </th>
+                  <th scope="col" class="text-center">
+                    @pro.Name
+                    <div class="matrix-sub small text-muted">All Starter features +</div>
+                  </th>
+                  <th scope="col" class="text-center">
+                    @ent.Name
+                    <div class="matrix-sub small text-muted">All Professional features +</div>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Sites/Users: numbers for fixed; ✓ for Unlimited -->
+                <tr>
+                  <th scope="row" class="matrix-sticky-left">Sites</th>
+                  <td class="tick text-center">@FormatLimitOrTick(starter?.Limits, static l => l.Sites)</td>
+                  <td class="tick text-center">@FormatLimitOrTick(pro?.Limits,     static l => l.Sites)</td>
+                  <td class="tick text-center">@FormatLimitOrTick(ent?.Limits,     static l => l.Sites)</td>
+                </tr>
+                <tr>
+                  <th scope="row" class="matrix-sticky-left">Users</th>
+                  <td class="tick text-center">@FormatLimitOrTick(starter?.Limits, static l => l.Users)</td>
+                  <td class="tick text-center">@FormatLimitOrTick(pro?.Limits,     static l => l.Users)</td>
+                  <td class="tick text-center">@FormatLimitOrTick(ent?.Limits,     static l => l.Users)</td>
+                </tr>
+
+                <!-- Dynamic features (Enterprise = always ✔) -->
+                @foreach (var row in _featureRows)
+                {
+                  var s = HasKey(starter, row.Key);
+                  var p = HasKey(pro, row.Key);
+                  var e = HasKey(ent, row.Key);
+
+                  <tr>
+                    <th scope="row" class="matrix-sticky-left">@row.Display</th>
+                    <td class="tick text-center">@CheckOrDash(s)</td>
+                    <td class="tick text-center">@CheckOrDash(p)</td>
+                    <td class="tick text-center">@CheckOrDash(e)</td>
+                  </tr>
+                }
+
+                <!-- CTA row -->
+                <tr class="matrix-cta-row">
+                  <th scope="row" class="matrix-sticky-left"></th>
+                  <td class="text-center">
+                    <a class="btn btn-sm btn-primary fw-bold px-3" href="@TrialHref">Try for Free</a>
+                  </td>
+                  <td class="text-center">
+                    <a class="btn btn-sm btn-primary fw-bold px-3" href="@TrialHref">Try for Free</a>
+                  </td>
+                  <td class="text-center">
+                    @if (HasCustomPrice(ent))
+                    { <a class="btn btn-sm btn-outline-primary fw-bold px-3" href="/contact">Contact Us</a> }
+                    else
+                    { <a class="btn btn-sm btn-primary fw-bold px-3" href="@TrialHref">Try for Free</a> }
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- All Plans Include -->
+      <div class="alert alert-success mb-0">
+        <div class="fw-semibold mb-1">All plans include</div>
+        <ul class="mb-0">
+          @foreach (var item in _data.AllPlansInclude)
+          { <li>@item</li> }
+        </ul>
+      </div>
+    }
+  </div>
+</section>
+
+@code {
+  // ===== JSON models (match pricing.json) =====
+  public sealed class PricingRoot
+  {
+    [JsonPropertyName("plans")] public List<Plan> Plans { get; set; } = new();
+    [JsonPropertyName("allPlansInclude")] public List<string> AllPlansInclude { get; set; } = new();
+  }
+
+  public sealed class Plan
+  {
+    [JsonPropertyName("id")] public string Id { get; set; } = "";
+    [JsonPropertyName("name")] public string Name { get; set; } = "";
+    [JsonPropertyName("tagline")] public string? Tagline { get; set; }
+    [JsonPropertyName("price")] public Dictionary<string, JsonElement> Price { get; set; } = new();
+    [JsonPropertyName("limits")] public Limits? Limits { get; set; }
+    [JsonPropertyName("features")] public List<string> Features { get; set; } = new();
+    [JsonPropertyName("support")] public string Support { get; set; } = "";
+    [JsonPropertyName("highlight")] public bool Highlight { get; set; }
+  }
+
+  public sealed class Limits
+  {
+    [JsonPropertyName("sites")] public JsonElement Sites { get; set; }
+    [JsonPropertyName("users")] public JsonElement Users { get; set; }
+  }
+
+  // Row spec for dynamic matrix (Display label may differ from JSON key)
+  private readonly record struct RowSpec(string Display, string Key);
+  private RowSpec[] _featureRows = Array.Empty<RowSpec>();
+
+  // Currency (auto; no toggle shown)
+  enum Currency { USD, BDT }
+  Currency _currency = Currency.USD;
+  IJSObjectReference? _mod;
+  bool _ready;
+
+  // Auth (controls CTA routing)
+  [CascadingParameter] public Task<AuthenticationState>? AuthStateTask { get; set; }
+  bool _isAuthenticated;
+  string TrialHref => _isAuthenticated ? "/auth/login" : "/auth/signup";
+
+  // Data
+  PricingRoot _data = new();
+  Plan? _starter, _pro, _ent;
+
+  protected override async Task OnInitializedAsync()
+  {
+    using var doc = await Content.GetAsync<JsonDocument>("pricing");
+    if (doc is not null)
+    {
+      try { _data = doc.Deserialize<PricingRoot>(new JsonSerializerOptions(JsonSerializerDefaults.Web)) ?? new(); }
+      catch { _data = new(); }
+    }
+
+    _starter = _data.Plans.FirstOrDefault(p => p.Id.Equals("starter", StringComparison.OrdinalIgnoreCase));
+    _pro     = _data.Plans.FirstOrDefault(p => p.Id.Equals("pro", StringComparison.OrdinalIgnoreCase));
+    _ent     = _data.Plans.FirstOrDefault(p => p.Id.Equals("enterprise", StringComparison.OrdinalIgnoreCase));
+
+    // Build matrix rows dynamically: Starter -> Pro -> Enterprise
+    var ordered = new List<string>();
+
+    // Hide these from the matrix:
+    bool Hide(string key)
+      => key.Equals("Everything in Pro", StringComparison.OrdinalIgnoreCase)
+      || key.StartsWith("Multi-Site Support", StringComparison.OrdinalIgnoreCase); // e.g., "(up to 15 sites)"
+
+    void addRange(IEnumerable<string>? src)
+    {
+      if (src is null) return;
+      foreach (var f in src)
+        if (!Hide(f) && !ordered.Any(x => x.Equals(f, StringComparison.OrdinalIgnoreCase)))
+          ordered.Add(f);
+    }
+
+    addRange(_starter?.Features);
+    addRange(_pro?.Features);
+    addRange(_ent?.Features);
+
+    static string DisplayLabel(string key) => key switch
+    {
+      "Multi-Site / Multi-Tenant Support" => "Multi-Site Support",
+      _ => key
+    };
+
+    _featureRows = ordered.Select(k => new RowSpec(DisplayLabel(k), k)).ToArray();
+  }
+
+  protected override async Task OnParametersSetAsync()
+  {
+    if (AuthStateTask is not null)
+    {
+      try
+      {
+        var state = await AuthStateTask;
+        _isAuthenticated = state?.User?.Identity?.IsAuthenticated == true;
+      }
+      catch { _isAuthenticated = false; }
+    }
+  }
+
+  protected override async Task OnAfterRenderAsync(bool firstRender)
+  {
+    if (!firstRender) return;
+
+    try
+    {
+      _mod = await JS.InvokeAsync<IJSObjectReference>("import", "/js/pricing.js");
+
+      // Use stored preference if present; else infer Bangladesh -> BDT
+      var saved = await _mod.InvokeAsync<string?>("getSavedCurrency");
+      if (Enum.TryParse(saved, ignoreCase: true, out Currency fromStore))
+        _currency = fromStore;
+
+      if (saved is null)
+      {
+        var info = await _mod.InvokeAsync<LocaleInfo>("getLocaleInfo");
+        if ((!string.IsNullOrWhiteSpace(info.tz)   && info.tz.Contains("Dhaka", StringComparison.OrdinalIgnoreCase)) ||
+            (!string.IsNullOrWhiteSpace(info.lang) && info.lang.Contains("bn", StringComparison.OrdinalIgnoreCase)))
+        {
+          _currency = Currency.BDT;
+        }
+        await _mod.InvokeVoidAsync("setSavedCurrency", _currency.ToString());
+      }
+    }
+    catch { /* Safe USD fallback */ }
+    finally
+    {
+      _ready = true;
+      StateHasChanged();
+    }
+  }
+
+  private readonly record struct LocaleInfo(string tz, string lang);
+
+  // ===== Helpers (null-safe) =====
+  static bool HasCustomPrice(Plan? p)
+    => p?.Price is not null
+       && p.Price.TryGetValue("custom", out var label)
+       && label.ValueKind == JsonValueKind.String
+       && !string.IsNullOrWhiteSpace(label.GetString());
+
+  string FormatPrice(Plan? p)
+  {
+    if (p is null) return "Price on Request";
+    if (HasCustomPrice(p))
+      return p.Price["custom"].GetString() ?? "Price on Request";
+
+    var key = _currency == Currency.BDT ? "BDT" : "USD";
+    var sym = _currency == Currency.BDT ? "৳" : "$";
+
+    if (p.Price.TryGetValue(key, out var val) && val.ValueKind == JsonValueKind.Number)
+    {
+      var amount = val.TryGetInt32(out var i) ? i : (int)val.GetDouble();
+      return _currency == Currency.BDT ? $"{sym}{amount:N0}" : $"{sym}{amount:#,0}";
+    }
+
+    return "Price on Request";
+  }
+
+  static string FormatLimit(JsonElement el) => el.ValueKind switch
+  {
+    JsonValueKind.Number => el.TryGetInt32(out var i) ? i.ToString("N0") : el.GetDouble().ToString("N0"),
+    JsonValueKind.String => el.GetString() ?? "",
+    _ => ""
+  };
+
+  // Used in plan cards only
+  string LimitsSummary(Plan? p)
+  {
+    if (p?.Limits is null) return string.Empty;
+
+    var sites = FormatLimit(p.Limits.Sites);
+    var users = FormatLimit(p.Limits.Users);
+
+    var sitesIsNum = p.Limits.Sites.ValueKind == JsonValueKind.Number;
+    var usersIsNum = p.Limits.Users.ValueKind == JsonValueKind.Number;
+
+    if (sitesIsNum && usersIsNum)
+      return $"Up to {sites} sites · {users} users";
+
+    var left = string.IsNullOrWhiteSpace(sites) ? "" : $"{sites} sites";
+    var right = string.IsNullOrWhiteSpace(users) ? "" : $"{users} users";
+    return string.IsNullOrWhiteSpace(left) ? right : string.IsNullOrWhiteSpace(right) ? left : $"{left} · {right}";
+  }
+
+  // Enterprise shows ✓ for every feature row
+  static bool HasKey(Plan? p, string key)
+    => (p?.Id?.Equals("enterprise", StringComparison.OrdinalIgnoreCase) == true)
+       || p?.Features?.Any(f => f.Equals(key, StringComparison.OrdinalIgnoreCase)) == true;
+
+  static string CheckOrDash(bool hasIt) => hasIt ? "✔" : "–";
+
+  // Limits cells: ✓ for "Unlimited", number for numeric, – if missing
+  static string FormatLimitOrTick(Limits? lim, Func<Limits, JsonElement> pick)
+  {
+    if (lim is null) return "–";
+    var el = pick(lim);
+    return el.ValueKind switch
+    {
+      JsonValueKind.Number => el.TryGetInt32(out var i) ? i.ToString("N0") : el.GetDouble().ToString("N0"),
+      JsonValueKind.String => string.Equals(el.GetString(), "Unlimited", StringComparison.OrdinalIgnoreCase) ? "✔" : (el.GetString() ?? "–"),
+      _ => "–"
+    };
+  }
+}

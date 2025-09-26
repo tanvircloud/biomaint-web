@@ -942,3 +942,154 @@ html[data-bs-theme="light"]{
 .bm-main{
   flex:1 0 auto;            /* reserve space between header & footer */
 }
+/* --- Turnstile host: stable layout, no jumps --- */
+.cf-host{
+  width:100%;
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;   /* left-align when Turnstile is fixed-width */
+  min-height:78px;              /* reserve space so it doesn't "blink" */
+}
+
+.cf-host > iframe{
+  display:block;                 /* remove inline-iframe baseline gap */
+  border:0;
+}
+
+/* When Turnstile supports flexible size, stretch to full width */
+.cf-host.cf-flex > iframe{
+  width:100% !important;
+  max-width:100% !important;
+}
+
+/* Slightly taller on very small screens to avoid clipping */
+@media (max-width:420px){
+  .cf-host{ min-height:86px; }
+}
+
+/* Keep toasts/modals above the CF iframe */
+.bm-toast{ z-index:1060; }
+.modal, .offcanvas, .dropdown-menu{ z-index:1060; }
+
+/* Optional: reduce motion for accessibility (prevents subtle “flicker” feel) */
+@media (prefers-reduced-motion: reduce){
+  .bm-anim-fadeup{ animation:none !important; transition:none !important; }
+}
+
+/* iOS Safari: prevent zoom-on-focus jump in auth inputs (optional) */
+.bm-login input, .bm-login button{ font-size:16px; }
+
+
+/* === Pricing (scoped) – additions ====================================== */
+
+/* Stronger head text balance */
+.pricing-head h1{ font-weight:700; letter-spacing:-.01em }
+.pricing-head p{ font-weight:500 }
+
+/* "Compare" title above matrix */
+.compare-title{
+  font-weight:700;
+  letter-spacing:-.01em;
+  margin: 0 0 10px 0;
+  font-size: clamp(22px, 1.4vw + 18px, 30px);
+}
+
+/* Glow frames */
+.glow-border{
+  background:
+    linear-gradient(var(--card), var(--card)) padding-box,
+    linear-gradient(135deg, rgba(16,185,129,.38), rgba(96,165,250,.38)) border-box;
+  border:1px solid transparent !important;
+  border-radius:18px !important;
+  box-shadow: var(--elev);
+}
+.glow-border-strong{
+  background:
+    linear-gradient(var(--card), var(--card)) padding-box,
+    linear-gradient(135deg, rgba(16,185,129,.55), rgba(96,165,250,.55)) border-box;
+  border:2px solid transparent !important;
+  border-radius:18px !important;
+  box-shadow: var(--elev-lg);
+}
+
+/* Pro card ribbon */
+.ribbon-most{
+  position:absolute; top:10px; right:12px;
+  padding:.28rem .6rem; border-radius:999px;
+  font-size:.675rem; font-weight:800; letter-spacing:.04em; text-transform:uppercase;
+  color:var(--accent-contrast);
+  background: linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 72%, #4ade80));
+  box-shadow: 0 2px 10px rgba(0,0,0,.22), inset 0 0 0 1px rgba(255,255,255,.12);
+}
+
+/* Cards */
+.pricing-cards .plan-card{ border-radius:18px; transition:transform .18s ease, box-shadow .18s ease }
+.pricing-cards .plan-card:hover{ transform: translateY(-3px) }
+
+/* Price styles */
+.plan-price{ font-weight:800; letter-spacing:-.02em; line-height:1; font-size:clamp(34px,5vw,48px) }
+.plan--pro .plan-price{ font-size:clamp(38px,5.5vw,52px) }
+.plan-unit{ font-size:.95rem; font-weight:700; opacity:.75; margin-left:.125rem }
+.plan-cta .btn{ height:44px; border-radius:12px; font-weight:700; padding-inline:18px }
+
+/* Matrix shell */
+.matrix-wrap{ border-radius:18px; overflow:hidden }
+
+/* Header (force background; fixes bleed/stripe you circled) */
+.matrix-table > thead.matrix-header > tr > th{
+  background: var(--surface-2) !important;
+  color: var(--text);
+  border-bottom:1px solid var(--border);
+  white-space:nowrap;
+  font-weight:700;
+}
+
+/* Sub-labels under plan names */
+.matrix-sub{ margin-top:2px; }
+
+/* Make table body NOT bold */
+.matrix-table tbody th,
+.matrix-table tbody td{ font-weight:400 }
+
+/* Sticky first column */
+.matrix-table .matrix-sticky-left{
+  position: sticky; left: 0; z-index: 2;
+  background: var(--surface);
+}
+
+/* Tick/dash: neutral color (no brand) */
+.matrix-table td.tick{
+  text-align:center;
+  font-weight:400;
+  font-size:1.05rem;
+  letter-spacing:.01em;
+  color: var(--text);
+}
+
+/* CTA row */
+.matrix-cta-row .btn{ border-radius:10px; padding:6px 12px; font-weight:700 }
+
+/* Use the site-wide glow already defined */
+.bg-glow{ position: relative; isolation: isolate; }
+.bg-glow::before, .bg-glow::after{
+  content:""; position:absolute; z-index:-1; pointer-events:none; filter: blur(36px); border-radius:50%;
+}
+.bg-glow::before{
+  width: 740px; height: 740px; right:-220px; top:-240px;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--blue) 30%, transparent), transparent 70%);
+}
+.bg-glow::after{
+  width: 700px; height: 700px; left:-220px; bottom:-260px;
+  background:
+    radial-gradient(closest-side, color-mix(in srgb, var(--brand) 28%, transparent), transparent 72%),
+    radial-gradient(closest-side, color-mix(in srgb, var(--violet) 22%, transparent), transparent 75%);
+}
+@media (max-width: 576px){
+  .ribbon-most{ right:10px; top:8px; font-size:.62rem; padding:.24rem .52rem }
+  .matrix-cta-row .btn{ width:100% }
+  .bg-glow::before{ width:420px; height:420px; right:-120px; top:-140px; }
+  .bg-glow::after { width:380px; height:380px; left:-110px; bottom:-140px; }
+}
+
+
+

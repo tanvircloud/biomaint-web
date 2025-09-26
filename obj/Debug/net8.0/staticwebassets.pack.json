@@ -81,8 +81,16 @@
       "PackagePath": "staticwebassets\\js\\bootstrap\\bootstrap.bundle.min.js"
     },
     {
+      "Id": "C:\\dev\\app\\WebApp\\wwwroot\\js\\pricing.js",
+      "PackagePath": "staticwebassets\\js\\pricing.js"
+    },
+    {
       "Id": "C:\\dev\\app\\WebApp\\wwwroot\\js\\theme.js",
       "PackagePath": "staticwebassets\\js\\theme.js"
+    },
+    {
+      "Id": "C:\\dev\\app\\WebApp\\wwwroot\\js\\turnstile-login.js",
+      "PackagePath": "staticwebassets\\js\\turnstile-login.js"
     },
     {
       "Id": "C:\\dev\\app\\WebApp\\wwwroot\\manifest.json",

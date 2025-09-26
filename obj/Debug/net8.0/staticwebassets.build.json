@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "WIVf3Mf4oXE1rCyjwGecyFxX5DTntCCDZfl3je0gvXc=",
+  "Hash": "NjbvWxzi8l+/Xkf2ZpTLuUXTR0GL5xJ3w/sKPjMnCvw=",
   "Source": "WebApp",
   "BasePath": "/",
   "Mode": "Root",
@@ -8985,6 +8985,25 @@
       "OriginalItemSpec": "wwwroot\\js\\bootstrap\\bootstrap.bundle.min.js"
     },
     {
+      "Identity": "C:\\dev\\app\\WebApp\\wwwroot\\js\\pricing.js",
+      "SourceId": "WebApp",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\dev\\app\\WebApp\\wwwroot\\",
+      "BasePath": "/",
+      "RelativePath": "js/pricing.js",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\js\\pricing.js"
+    },
+    {
       "Identity": "C:\\dev\\app\\WebApp\\wwwroot\\js\\theme.js",
       "SourceId": "WebApp",
       "SourceType": "Discovered",
@@ -9002,6 +9021,25 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\js\\theme.js"
+    },
+    {
+      "Identity": "C:\\dev\\app\\WebApp\\wwwroot\\js\\turnstile-login.js",
+      "SourceId": "WebApp",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\dev\\app\\WebApp\\wwwroot\\",
+      "BasePath": "/",
+      "RelativePath": "js/turnstile-login.js",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\js\\turnstile-login.js"
     },
     {
       "Identity": "C:\\dev\\app\\WebApp\\wwwroot\\manifest.json",

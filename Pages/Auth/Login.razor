@@ -9,15 +9,12 @@
 @inject IJSRuntime JS
 
 <div class="d-flex flex-column justify-content-center align-items-center bm-login-wrap bm-login"
-  style="min-height:100vh; background:var(--bg);">
+     style="min-height:100vh; background:var(--bg);">
 
-  <!-- Popup toast (theme-aware, auto close) -->
   @if (ShowToastUI)
   {
     <div class="bm-toast bm-toast-@ToastKind" role="status" aria-live="assertive">
-      <div class="bm-toast-icon">
-        <i class="bi @ToastIcon"></i>
-      </div>
+      <div class="bm-toast-icon"><i class="bi @ToastIcon"></i></div>
       <div class="bm-toast-body">@ToastMessage</div>
       <button type="button" class="bm-toast-close" @onclick="HideToast" aria-label="Close">
         <i class="bi bi-x-lg"></i>
@@ -25,7 +22,6 @@
     </div>
   }
 
-  <!-- Card -->
   <div class="bm-login-card bm-anim-fadeup" style="
       width:100%;max-width:380px;padding:40px;
       background:var(--panel);color:var(--text);
@@ -35,11 +31,10 @@
     <!-- Brand -->
     <div style="text-align:center;margin-bottom:25px;">
       <img src="assets/logos/biomaint.svg" alt="BioMaint Logo"
-        style="width:48px;height:48px;margin-bottom:12px;display:inline-block;" />
+           style="width:48px;height:48px;margin-bottom:12px;display:inline-block;" />
       <h2 style="margin:0;color:var(--accent);">@AppName</h2>
       <p style="color:var(--text-muted);font-size:14px;margin:5px 0 0 0;">@Subtitle</p>
     </div>
-
 
     @if (!RequireMfa)
     {
@@ -48,12 +43,12 @@
         <label for="email" class="form-label" style="font-weight:600;color:var(--text);">Email *</label>
         <div class="input-group">
           <span class="input-group-text" id="emailIcon"
-            style="background:var(--field-chip-bg);border-color:var(--field-border);">
+                style="background:var(--field-chip-bg);border-color:var(--field-border);">
             <i class="bi bi-envelope"></i>
           </span>
           <input id="email" @bind="Email" type="email" class="form-control"
-            style="background:var(--field-bg);color:var(--text);border-color:var(--field-border);" autocomplete="username"
-            aria-describedby="emailIcon" required />
+                 style="background:var(--field-bg);color:var(--text);border-color:var(--field-border);"
+                 autocomplete="username" aria-describedby="emailIcon" required />
         </div>
         @if (!string.IsNullOrEmpty(EmailError))
         {
@@ -66,11 +61,11 @@
         <label for="password" class="form-label" style="font-weight:600;color:var(--text);">Password *</label>
         <div class="input-group" style="margin-top:5px;">
           <input id="password" type="@(_obscure ? "password" : "text")" @bind="Password" class="form-control"
-            style="background:var(--field-bg);color:var(--text);border-color:var(--field-border);"
-            autocomplete="current-password" required minlength="8" />
+                 style="background:var(--field-bg);color:var(--text);border-color:var(--field-border);"
+                 autocomplete="current-password" required minlength="8" />
           <button @onclick="ToggleObscure" type="button" class="btn btn-outline-secondary" title="@ToggleTitle"
-            aria-label="@ToggleTitle"
-            style="border-color:var(--field-border);background:var(--field-chip-bg);color:var(--text);">
+                  aria-label="@ToggleTitle"
+                  style="border-color:var(--field-border);background:var(--field-chip-bg);color:var(--text);">
             <i class="bi @ToggleIcon"></i>
           </button>
         </div>
@@ -88,7 +83,24 @@
         </label>
       </div>
 
-      <!-- Consent copy (above button) -->
+      <!-- Cloudflare Turnstile: full width when flexible; left align when fixed -->
+      <div class="mb-1">
+        <div id="cf-turnstile" class="cf-host" aria-live="polite"></div>
+      </div>
+
+      <!-- Status line (visible toggle) -->
+      @if (ShowCaptchaStatusUI)
+      {
+        <div class="d-flex justify-content-between align-items-center mb-3" aria-live="polite">
+          <small class="@CaptchaStatusCss">@CaptchaStatus</small>
+        </div>
+      }
+      else
+      {
+        <!-- Keep for screen readers only -->
+        <small class="visually-hidden" aria-live="polite">@CaptchaStatus</small>
+      }
+
       <p style="color:var(--text-muted);font-size:12px;margin:0 0 12px 0;">
         By logging in, you agree to BioMaint’s
         <a href="/terms" style="color:var(--accent);text-decoration:none;">Terms of Use</a>
@@ -102,29 +114,35 @@
       <div style="margin-bottom:18px;">
         <label for="mfa" class="form-label" style="font-weight:600;color:var(--text);">Enter MFA Code *</label>
         <input id="mfa" @bind="MfaCode" type="text" class="form-control"
-          style="background:var(--field-bg);color:var(--text);border-color:var(--field-border);" inputmode="numeric"
-          maxlength="6" autocomplete="one-time-code" />
+               style="background:var(--field-bg);color:var(--text);border-color:var(--field-border);" inputmode="numeric"
+               maxlength="6" autocomplete="one-time-code" />
       </div>
     }
 
     <!-- Submit -->
-    <button @onclick="Submit" disabled="@IsLoading" class="btn w-100" style="
+    <button @onclick="Submit"
+            disabled="@(IsLoading || IsCaptchaVerifying || !CaptchaHasToken)"
+            class="btn w-100" style="
               padding:14px;
               background:var(--accent);color:var(--accent-contrast);
               border:none;border-radius:8px;font-size:16px;font-weight:600;
               cursor:pointer;transition:background .2s ease;">
-      @if (IsLoading)
+      @if (IsLoading || IsCaptchaVerifying)
       {
         <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
       }
-      @(IsLoading ? "Processing..." : (RequireMfa ? "Verify Code" : "Log In"))
+      @(
+        IsLoading
+          ? "Processing..."
+          : IsCaptchaVerifying
+            ? "Verifying human..."
+            : (RequireMfa ? "Verify Code" : "Log In")
+       )
     </button>
 
     @if (!string.IsNullOrEmpty(Error))
     {
-      <div class="alert alert-danger text-center mt-3" role="alert">
-        @Error
-      </div>
+      <div class="alert alert-danger text-center mt-3" role="alert">@Error</div>
     }
 
     @if (!RequireMfa)
@@ -138,6 +156,23 @@
   </div>
 </div>
 
+<style>
+  /* Host for Turnstile. No input look. */
+  .cf-host{
+    width:100%;
+    display:flex;
+    justify-content:flex-start;   /* left align when widget has fixed width */
+    align-items:center;
+  }
+  /* When flexible is supported, help it stretch to the container */
+  .cf-host.cf-flex iframe{ width:100% !important; max-width:100% !important; }
+
+  /* Subtle status colors */
+  .text-muted-strong { color: var(--text-muted); font-weight: 500; }
+  .text-ok { color: var(--accent); }
+  .text-warn { color: #d9534f; }
+</style>
+
 @code {
   private string AppName = "BioMaint";
   private string Subtitle = "Log in to simplify tasks";
@@ -147,11 +182,27 @@
   private string MfaCode = "";
   private bool RememberMe = false;
   private bool _obscure = true;
+
   private bool IsLoading = false;
+  private bool IsCaptchaVerifying = false;
+
+  private bool CaptchaHasToken = false;                 // live token presence
+  private bool ShowCaptchaStatusUI = false;             // <-- toggle visibility of the status line
+  private string CaptchaStatus = "Awaiting verification";
+  private string CaptchaStatusCss => CaptchaStatus switch
+  {
+    "Verified" => "text-ok",
+    "Verifying…" => "text-muted-strong",
+    _ => "text-muted"
+  };
+
   private string? EmailError;
   private string? PasswordError;
-  private string? Error; // kept for compatibility, but we now show toast
+  private string? Error;
   private bool RequireMfa = false;
+
+  // Turnstile
+  private string TurnstileSiteKey => Config["Turnstile:SiteKey"] ?? "";
 
   // Toast state
   private bool ShowToastUI = false;
@@ -171,8 +222,10 @@
   private string VerifyMfaUrl => $"{ApiBase}api/auth/verify-mfa";
 
   private static readonly System.Text.RegularExpressions.Regex EmailPattern =
-  new(@"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$",
-  System.Text.RegularExpressions.RegexOptions.Compiled | System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+      new(@"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$",
+          System.Text.RegularExpressions.RegexOptions.Compiled | System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+
+  private DotNetObjectReference<Login>? _selfRef; // for JS -> .NET callbacks
 
   protected override void OnInitialized()
   {
@@ -181,14 +234,69 @@
 
   protected override async Task OnAfterRenderAsync(bool firstRender)
   {
-    if (firstRender)
+    if (firstRender && !RequireMfa)
     {
       try
       {
-        await JS.InvokeVoidAsync("BioMaintLogin.init");
+        if (string.IsNullOrWhiteSpace(TurnstileSiteKey))
+        {
+          ShowToast("Missing Turnstile site key. Set Turnstile:SiteKey in configuration.", "danger");
+          return;
+        }
+
+        CaptchaHasToken = false;
+        CaptchaStatus = "Awaiting verification";
+
+        _selfRef ??= DotNetObjectReference.Create(this);
+
+        await JS.InvokeVoidAsync("BioMaintLogin.destroy");
+        await JS.InvokeVoidAsync("BioMaintLogin.init", TurnstileSiteKey, "cf-turnstile", _selfRef);
       }
-      catch { /* ignore if script not loaded */ }
+      catch
+      {
+        // script loads async; we'll retry on submit if needed
+      }
+      finally
+      {
+        await InvokeAsync(StateHasChanged);
+      }
     }
+  }
+
+  public async ValueTask DisposeAsync()
+  {
+    try { await JS.InvokeVoidAsync("BioMaintLogin.destroy"); } catch { }
+    _selfRef?.Dispose();
+  }
+
+  [JSInvokable] // JS notifies us: rendered / token / expired / error / reset
+  public Task OnCaptchaStatus(string evt)
+  {
+    switch (evt)
+    {
+      case "rendered":
+        CaptchaHasToken = false;
+        CaptchaStatus = "Awaiting verification";
+        break;
+      case "token":
+        CaptchaHasToken = true;
+        CaptchaStatus = "Verified";
+        break;
+      case "expired":
+        CaptchaHasToken = false;
+        CaptchaStatus = "Awaiting verification";
+        break;
+      case "error":
+        CaptchaHasToken = false;
+        CaptchaStatus = "Verification error. Please retry.";
+        break;
+      case "reset":
+        CaptchaHasToken = false;
+        CaptchaStatus = "Awaiting verification";
+        break;
+    }
+    StateHasChanged();
+    return Task.CompletedTask;
   }
 
   private string ToggleIcon => _obscure ? "bi-eye" : "bi-eye-slash";
@@ -197,6 +305,8 @@
 
   private async Task Submit()
   {
+    if (IsCaptchaVerifying) return;
+
     if (!RequireMfa)
     {
       EmailError = string.IsNullOrWhiteSpace(Email) ? "Please enter your email" : null;
@@ -217,6 +327,20 @@
       return;
     }
 
+    // If user clicks too early, guide them
+    if (!RequireMfa && !CaptchaHasToken)
+    {
+      ShowToast("Please complete the human verification.", "danger");
+      return;
+    }
+
+    IsCaptchaVerifying = !RequireMfa;
+    if (IsCaptchaVerifying)
+    {
+      CaptchaStatus = "Verifying…";
+      await InvokeAsync(StateHasChanged);
+    }
+
     IsLoading = true;
     Error = null;
 
@@ -226,7 +350,26 @@
 
       if (!RequireMfa)
       {
-        var payload = new { email = Email, password = Password, rememberMe = RememberMe };
+        var captchaToken = await JS.InvokeAsync<string>("BioMaintLogin.getOrWaitToken", 7000);
+        IsCaptchaVerifying = false;
+
+        if (string.IsNullOrWhiteSpace(captchaToken))
+        {
+          CaptchaStatus = "Still solving or expired. Please complete the challenge.";
+          ShowToast("Please complete the human verification.", "danger");
+          return;
+        }
+
+        CaptchaStatus = "Verified";
+
+        var payload = new
+        {
+          email = Email,
+          password = Password,
+          rememberMe = RememberMe,
+          captchaToken = captchaToken
+        };
+
         var resp = await Http.PostAsJsonAsync(LoginUrl, payload, cts.Token);
 
         if (resp.StatusCode == System.Net.HttpStatusCode.Forbidden)
@@ -238,7 +381,10 @@
 
         if (!resp.IsSuccessStatusCode)
         {
-          ShowToast("Invalid email or password.", "danger");
+          ShowToast("We couldn’t log you in. Check your details and try again.", "danger");
+          try { await JS.InvokeVoidAsync("BioMaintLogin.reset"); } catch { }
+          CaptchaHasToken = false;
+          CaptchaStatus = "Awaiting verification";
           return;
         }
 
@@ -274,6 +420,7 @@
     }
     finally
     {
+      IsCaptchaVerifying = false;
       IsLoading = false;
     }
   }
@@ -294,7 +441,7 @@
       ShowToastUI = false;
       await InvokeAsync(StateHasChanged);
     }
-    catch { /* ignore */ }
+    catch { }
   }
 
   private void HideToast() => ShowToastUI = false;
