@@ -15,6 +15,32 @@
     string AppHeading = "Get the app";
     string FollowHeading = "Follow";
 
+    // Map any incoming legal label to the correct /legal route while keeping the label
+    static string NormalizeLegalHref(string label, string currentHref)
+    {
+        var l = (label ?? "").ToLowerInvariant();
+        if (l.Contains("privacy") || l.Contains("cookie"))
+            return "/legal/privacy";
+        if (l.Contains("security"))
+            return "/legal/security";
+        if (l.Contains("terms") || l.Contains("service"))
+            return "/legal/terms";
+        return currentHref;
+    }
+
+    // Make sure we always surface the 3 standard links even if JSON is missing them
+    void EnsureStandardLegalLinks()
+    {
+        bool hasPrivacy  = Legal.Any(x => x.Label.Contains("Privacy", System.StringComparison.OrdinalIgnoreCase)
+                                       || x.Label.Contains("Cookie", System.StringComparison.OrdinalIgnoreCase));
+        bool hasSecurity = Legal.Any(x => x.Label.Contains("Security", System.StringComparison.OrdinalIgnoreCase));
+        bool hasTerms    = Legal.Any(x => x.Label.Contains("Terms", System.StringComparison.OrdinalIgnoreCase));
+
+        if (!hasPrivacy)  Legal.Add(("Privacy & Cookie Policy", "/legal/privacy"));
+        if (!hasSecurity) Legal.Add(("Security Policy", "/legal/security"));
+        if (!hasTerms)    Legal.Add(("Terms of Service", "/legal/terms"));
+    }
+
     protected override async Task OnInitializedAsync()
     {
         // Copyright (string) from FooterModel
@@ -55,9 +81,13 @@
             Columns.Add((title, links));
         }
 
-        // Legal links (bottom row) — exactly as webApp.html
+        // Legal links (bottom row) — exactly as webApp.html (normalize to /legal/* when applicable)
         foreach (var l in Arr(root, "legal"))
-            Legal.Add((Str(l, "label") ?? "", Str(l, "href") ?? "#"));
+        {
+            var label = Str(l, "label") ?? "";
+            var href  = NormalizeLegalHref(label, Str(l, "href") ?? "#");
+            Legal.Add((label, href));
+        }
 
         // Fallback: if no explicit "legal" array, try to filter last column
         if (Legal.Count == 0 && Columns.Count > 0)
@@ -65,11 +95,24 @@
             var last = Columns.Last();
             var filtered = last.Links
                 .Where(x => x.Label.Contains("Privacy", System.StringComparison.OrdinalIgnoreCase)
-                         || x.Label.Contains("Terms", System.StringComparison.OrdinalIgnoreCase))
+                         || x.Label.Contains("Cookie",  System.StringComparison.OrdinalIgnoreCase)
+                         || x.Label.Contains("Terms",   System.StringComparison.OrdinalIgnoreCase)
+                         || x.Label.Contains("Security",System.StringComparison.OrdinalIgnoreCase))
+                .Select(x => (x.Label, NormalizeLegalHref(x.Label, x.Href)))
                 .ToList();
+
             if (filtered.Count > 0)
                 Legal = filtered;
         }
+
+        // Ensure standard links exist (Privacy, Security, Terms)
+        EnsureStandardLegalLinks();
+
+        // De-duplicate by label (keep the first occurrence)
+        Legal = Legal
+            .GroupBy(x => x.Label, System.StringComparer.OrdinalIgnoreCase)
+            .Select(g => g.First())
+            .ToList();
     }
 }
 
@@ -81,8 +124,9 @@
             <div class="d-flex justify-content-between flex-column flex-md-row small text-muted">
                 <div>© BioMaint</div>
                 <div class="d-flex gap-3">
-                    <a class="text-decoration-none" href="/privacy">Privacy Policy</a>
-                    <a class="text-decoration-none" href="/terms">Terms of Service</a>
+                    <a class="text-decoration-none" href="/legal/privacy">Privacy & Cookie Policy</a>
+                    <a class="text-decoration-none" href="/legal/security">Security Policy</a>
+                    <a class="text-decoration-none" href="/legal/terms">Terms of Service</a>
                 </div>
             </div>
         </div>

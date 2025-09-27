@@ -1061,12 +1061,19 @@ html[data-bs-theme="dark"] .pricing-cards .plan-card{
 
 /* Body row backgrounds (no stripes) */
 .matrix-table{
-  --row-bg:#191E22;                         /* dark default */
-  --hover-bg: color-mix(in srgb, var(--row-bg) 88%, white);
+  /* DARK DEFAULT overridable below */
+  --row-bg:#1a1f24;                         /* light grey for dark mode rows */
+  --hover-bg:#20262c;                       /* slightly lighter on hover */
 }
+/* Light mode: pure white rows + soft hover */
 html[data-bs-theme="light"] .matrix-table{
-  --row-bg:#F3F5F8;                         /* light grey requested */
-  --hover-bg:#EEF2F7;                       /* single, soft hover */
+  --row-bg:#ffffff;                         /* requested: white in light mode */
+  --hover-bg:#F7F8F9;                       /* subtle hover on white */
+}
+/* Dark mode (explicit, mirrors default above for clarity) */
+html[data-bs-theme="dark"] .matrix-table{
+  --row-bg:#1a1f24;                         /* requested: light grey in dark mode */
+  --hover-bg:#20262c;                       /* slightly lighter on hover */
 }
 
 /* Normalize every cell to the same background and border */
@@ -1111,6 +1118,17 @@ html[data-bs-theme="light"] .matrix-table{
 .matrix-cta-row .btn{ border-radius:10px; padding:6px 12px; font-weight:700 }
 
 /* -----------------------------------------------------------------------
+   FAQ OVERRIDES (remove active/selection tint)
+------------------------------------------------------------------------ */
+#faqAccordion .accordion-button{
+  background: transparent !important;
+}
+#faqAccordion .accordion-button:not(.collapsed){
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* -----------------------------------------------------------------------
    PAGE GLOW (unchanged)
 ------------------------------------------------------------------------ */
 .bg-glow{ position:relative; isolation:isolate }
@@ -1137,3 +1155,49 @@ html[data-bs-theme="light"] .matrix-table{
   .bg-glow::after { width:380px; height:380px; left:-110px; bottom:-140px }
 }
 
+
+/* === Legal (scoped) – final =========================================== */
+
+  /* Layout */
+  .legal-wrap{ display:flex; gap:24px }
+  .legal-side{ flex:0 0 260px }
+  .legal-body{ flex:1 1 auto; max-width: 900px }
+
+  /* Card shell for policy body (matches site look) */
+  .legal-card{
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: var(--elev);
+    padding: clamp(16px, 1.4vw + 12px, 26px);
+  }
+
+  /* Reading comfort */
+  .legal-body h1{ font-weight:800; letter-spacing:-.01em; margin-bottom:.5rem }
+  .legal-body p.lead{ color: var(--muted); font-weight:500; margin-bottom:1rem }
+  .legal-body h2{ font-size: clamp(18px, 1.1vw + 14px, 22px); font-weight:700; margin: 1.1rem 0 .4rem }
+  .legal-body p{ line-height:1.65; color: var(--text); margin: .35rem 0 }
+
+  /* Side list styles (active = brand) */
+  .legal-nav .list-group-item{
+    background: transparent;
+    color: var(--text);
+    border-color: var(--border);
+  }
+  .legal-nav .list-group-item.active{
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--accent-contrast);
+  }
+
+  /* Sticky aside on large screens */
+  @media (min-width: 992px){
+    .legal-sticky{ position: sticky; top: 88px }
+  }
+
+  /* Mobile: stack + show quick selector */
+  @media (max-width: 991.98px){
+    .legal-wrap{ flex-direction: column }
+    .legal-side{ flex: 0 0 auto }
+    .legal-body{ max-width: 100% }
+  }

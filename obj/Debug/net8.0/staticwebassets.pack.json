@@ -33,12 +33,20 @@
       "PackagePath": "staticwebassets\\content\\landing.json"
     },
     {
+      "Id": "C:\\dev\\app\\WebApp\\wwwroot\\content\\legal.json",
+      "PackagePath": "staticwebassets\\content\\legal.json"
+    },
+    {
       "Id": "C:\\dev\\app\\WebApp\\wwwroot\\content\\nav.footer.json",
       "PackagePath": "staticwebassets\\content\\nav.footer.json"
     },
     {
       "Id": "C:\\dev\\app\\WebApp\\wwwroot\\content\\nav.header.json",
       "PackagePath": "staticwebassets\\content\\nav.header.json"
+    },
+    {
+      "Id": "C:\\dev\\app\\WebApp\\wwwroot\\content\\pricing-faq.json",
+      "PackagePath": "staticwebassets\\content\\pricing-faq.json"
     },
     {
       "Id": "C:\\dev\\app\\WebApp\\wwwroot\\content\\pricing.json",
@@ -63,14 +71,6 @@
     {
       "Id": "C:\\dev\\app\\WebApp\\wwwroot\\css\\theme.css",
       "PackagePath": "staticwebassets\\css\\theme.css"
-    },
-    {
-      "Id": "C:\\dev\\app\\WebApp\\wwwroot\\favicon.png",
-      "PackagePath": "staticwebassets\\favicon.png"
-    },
-    {
-      "Id": "C:\\dev\\app\\WebApp\\wwwroot\\icon-192.png",
-      "PackagePath": "staticwebassets\\icon-192.png"
     },
     {
       "Id": "C:\\dev\\app\\WebApp\\wwwroot\\index.html",

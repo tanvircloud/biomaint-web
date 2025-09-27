@@ -1,0 +1,199 @@
+@page "/legal/{id?}"
+@layout PublicLayout
+@using System.Text.Json
+@using System.Text.Json.Serialization
+@using System.Text.RegularExpressions
+@using Microsoft.AspNetCore.Components
+@using System.Net
+@inject WebApp.Services.ContentService Content
+@inject NavigationManager Nav
+
+<PageTitle>@(_policy?.Title is null ? "Legal – BioMaint" : $"{_policy.Title} – BioMaint")</PageTitle>
+
+<section class="py-5">
+  <div class="container">
+    <!-- Mobile quick switch -->
+    <div class="d-lg-none mb-3">
+      <label for="legalSel" class="form-label">Select a policy</label>
+      <select id="legalSel" class="form-select"
+              @onchange="e => OnSelectChange(e?.Value?.ToString())"
+              value="@_id">
+        @foreach (var p in _allPolicies)
+        {
+          <option value="@p.Id">@p.Title</option>
+        }
+      </select>
+    </div>
+
+    <div class="legal-wrap">
+      <!-- Sidebar -->
+      <aside class="legal-side d-none d-lg-block">
+        <div class="legal-sticky">
+          <nav class="list-group legal-nav">
+            @foreach (var p in _allPolicies)
+            {
+              var active = string.Equals(p.Id, _id, StringComparison.OrdinalIgnoreCase);
+              <a class="list-group-item list-group-item-action @(active ? "active" : "")"
+                 href="@($"/legal/{p.Id}")">@p.Title</a>
+            }
+          </nav>
+        </div>
+      </aside>
+
+      <!-- Body -->
+      <div class="legal-body">
+        @if (_loading)
+        {
+          <div class="alert alert-info" role="status">Loading policy…</div>
+        }
+        else if (_policy is null)
+        {
+          <div class="alert alert-warning">We couldn’t find that policy. Please choose one from the list.</div>
+        }
+        else
+        {
+          <div class="legal-card">
+            <h1>@_policy.Title</h1>
+
+            @if (!string.IsNullOrWhiteSpace(_policy.Intro) || !string.IsNullOrWhiteSpace(_policy.Effective) || !string.IsNullOrWhiteSpace(_policy.Updated))
+            {
+              <p class="lead">@((MarkupString)Linkify(_policy.Intro))</p>
+              <p class="text-muted small mb-4">
+                @if (!string.IsNullOrWhiteSpace(_policy.Effective))
+                {
+                  <span>Effective: <time datetime="@_policy.Effective">@FormatDate(_policy.Effective)</time></span>
+                }
+                @if (!string.IsNullOrWhiteSpace(_policy.Effective) && !string.IsNullOrWhiteSpace(_policy.Updated))
+                {
+                  <span class="mx-2">•</span>
+                }
+                @if (!string.IsNullOrWhiteSpace(_policy.Updated))
+                {
+                  <span>Last revised: <time datetime="@_policy.Updated">@FormatDate(_policy.Updated)</time></span>
+                }
+              </p>
+            }
+
+            @foreach (var s in _policy.Sections)
+            {
+              <article class="mb-3">
+                <h2 id="@Slugify(s.Heading)">@s.Heading</h2>
+                @RenderParagraphs(s.Text)
+              </article>
+            }
+
+            <hr class="my-4" />
+            <p class="text-muted small mb-0">
+              © BioMaint @DateTime.UtcNow.Year. All rights reserved.
+            </p>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</section>
+
+@code {
+  [Parameter] public string? Id { get; set; }
+
+  // Models
+  private sealed class LegalRoot
+  {
+    [JsonPropertyName("policies")] public List<Policy> Policies { get; set; } = new();
+  }
+  private sealed class Policy
+  {
+    [JsonPropertyName("id")] public string Id { get; set; } = "";
+    [JsonPropertyName("title")] public string Title { get; set; } = "";
+    [JsonPropertyName("intro")] public string? Intro { get; set; }
+    [JsonPropertyName("effective")] public string? Effective { get; set; }   // ISO date string
+    [JsonPropertyName("updated")] public string? Updated { get; set; }       // ISO date string
+    [JsonPropertyName("sections")] public List<Section> Sections { get; set; } = new();
+  }
+  private sealed class Section
+  {
+    [JsonPropertyName("heading")] public string Heading { get; set; } = "";
+    [JsonPropertyName("text")] public string Text { get; set; } = "";
+  }
+
+  string _id = "terms";
+  bool _loading;
+  List<Policy> _allPolicies = new();
+  Policy? _policy;
+
+  protected override async Task OnParametersSetAsync()
+  {
+    _loading = true;
+
+    _id = string.IsNullOrWhiteSpace(Id) ? "terms" : Id!.Trim().ToLowerInvariant();
+
+    var root = await Content.GetAsync<LegalRoot>("legal") ?? new LegalRoot();
+    _allPolicies = root.Policies;
+
+    _policy = _allPolicies.FirstOrDefault(p => p.Id.Equals(_id, StringComparison.OrdinalIgnoreCase))
+              ?? _allPolicies.FirstOrDefault(p => p.Id.Equals("terms", StringComparison.OrdinalIgnoreCase));
+
+    _loading = false;
+  }
+
+  void OnSelectChange(string? value)
+  {
+    var target = string.IsNullOrWhiteSpace(value) ? "terms" : value;
+    Nav.NavigateTo($"/legal/{target}");
+  }
+
+  // Helpers
+  static string Slugify(string? s)
+  {
+    if (string.IsNullOrWhiteSpace(s)) return "";
+    var slug = s.Trim().ToLowerInvariant();
+    slug = Regex.Replace(slug, @"[^a-z0-9\s-]", "");
+    slug = Regex.Replace(slug, @"\s+", "-");
+    slug = Regex.Replace(slug, "-{2,}", "-");
+    return slug;
+  }
+
+  static string FormatDate(string? iso)
+  {
+    if (DateTime.TryParse(iso, out var dt))
+      return dt.ToString("MMMM d, yyyy");
+    return iso ?? "";
+  }
+
+  string Linkify(string? input)
+  {
+    if (string.IsNullOrWhiteSpace(input)) return string.Empty;
+
+    var map = _allPolicies.ToDictionary(p => p.Id, p => p.Title, StringComparer.OrdinalIgnoreCase);
+
+    string Eval(Match m)
+    {
+      var id = m.Groups["id"].Value;
+      var anchor = m.Groups["anchor"].Success ? $"#{m.Groups["anchor"].Value}" : "";
+      if (map.TryGetValue(id, out var title))
+      {
+        var safeTitle = WebUtility.HtmlEncode(title);
+        return $"<a href=\"/legal/{id}{anchor}\">{safeTitle}</a>";
+      }
+      return m.Value;
+    }
+
+    return Regex.Replace(input, @"\[(?<id>[a-z0-9\-]+)(#(?<anchor>[a-z0-9\-]+))?\]", Eval, RegexOptions.IgnoreCase);
+  }
+
+  RenderFragment RenderParagraphs(string? text) => builder =>
+  {
+    if (string.IsNullOrWhiteSpace(text)) return;
+
+    var parts = text.Replace("\r\n", "\n")
+                    .Split("\n\n", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+
+    var seq = 0;
+    foreach (var p in parts)
+    {
+      builder.OpenElement(seq++, "p");
+      builder.AddMarkupContent(seq++, Linkify(p));
+      builder.CloseElement();
+    }
+  };
+}

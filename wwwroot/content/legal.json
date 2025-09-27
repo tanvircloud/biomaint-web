@@ -1,0 +1,77 @@
+{
+  "policies": [
+    {
+      "id": "terms",
+      "title": "Terms of Service",
+      "intro": "These Terms govern your use of the BioMaint platform.",
+      "sections": [
+        {
+          "heading": "Introduction",
+          "text": "By accessing or using BioMaint, you agree to comply with these terms. For how we handle personal data, see [privacy]. For our technical safeguards, see [security]."
+        },
+        {
+          "heading": "Use of Service",
+          "text": "You may use BioMaint only for lawful purposes. Accounts must be kept secure and not shared outside your organization without authorization."
+        },
+        {
+          "heading": "Data Ownership",
+          "text": "You retain ownership of all data you input into BioMaint. We only process this data to provide the service."
+        },
+        {
+          "heading": "Limitations of Liability",
+          "text": "BioMaint is provided as a SaaS platform with commercially reasonable uptime and support. We are not liable for indirect damages or losses beyond the fees paid."
+        }
+      ]
+    },
+    {
+      "id": "privacy",
+      "title": "Privacy & Cookie Policy",
+      "intro": "Explains what we collect, why, and your choices.",
+      "sections": [
+        {
+          "heading": "Data Collection",
+          "text": "We collect account details such as name, email, and usage logs to provide and improve BioMaint. Sensitive equipment or hospital records are processed only as part of your usage."
+        },
+        {
+          "heading": "Cookies",
+          "text": "BioMaint uses cookies for authentication and session management. We do not use third-party tracking cookies for advertising."
+        },
+        {
+          "heading": "Data Sharing",
+          "text": "We never sell your data. Data may be shared with trusted service providers (e.g., hosting, email delivery) under strict agreements."
+        },
+        {
+          "heading": "Retention & Rights",
+          "text": "Your data is retained for the duration of your subscription. You may request export or deletion of personal data as required by law. See also our [terms] and [security]."
+        }
+      ]
+    },
+    {
+      "id": "security",
+      "title": "Security Policy",
+      "intro": "How we protect your data and keep the service reliable.",
+      "sections": [
+        {
+          "heading": "Encryption",
+          "text": "All data transmitted between your device and the BioMaint API is secured with 256-bit SSL/TLS encryption."
+        },
+        {
+          "heading": "Authentication & Access",
+          "text": "We use JWT-based authentication with strong password requirements and optional multi-factor authentication. CAPTCHA is triggered on failed login attempts."
+        },
+        {
+          "heading": "Infrastructure",
+          "text": "BioMaint runs on professionally managed cloud servers with firewalls, intrusion detection, and regular OS patching."
+        },
+        {
+          "heading": "Backups & Recovery",
+          "text": "Daily encrypted backups are stored across multiple servers. We target 99.9% uptime with procedures to restore service in case of failures."
+        },
+        {
+          "heading": "Incident Response",
+          "text": "If a security incident occurs, we investigate immediately, apply fixes, and notify impacted customers without delay. Related: [privacy] and [terms]."
+        }
+      ]
+    }
+  ]
+}

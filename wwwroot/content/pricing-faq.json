@@ -1,0 +1,66 @@
+{
+  "pricingFaq": {
+    "faqs": [
+      {
+        "q": "Is there a free plan or trial?",
+        "a": "Yes. BioMaint offers a 14-day free trial with full access so you can evaluate before committing. We do not offer a free-forever plan."
+      },
+      {
+        "q": "Who needs a paid seat?",
+        "a": "Admins and Technicians require paid seats. Requesters (users who only submit or track requests) are unlimited and free on every plan."
+      },
+      {
+        "q": "What are the plan prices?",
+        "a": "{pricing}"
+      },
+      {
+        "q": "Can I switch between monthly and annual billing?",
+        "a": "Yes. You can choose monthly or annual billing. Annual billing includes a discount."
+      },
+      {
+        "q": "Is the mobile app included?",
+        "a": "Yes. The BioMaint mobile app for iOS and Android is included in all plans at no extra cost."
+      },
+      {
+        "q": "Are there setup or hidden fees?",
+        "a": "No. The price you see is the price you pay. There are no setup or hidden fees."
+      },
+      {
+        "q": "What if I change the number of seats mid-cycle?",
+        "a": "You can add seats anytime (prorated for the remainder of the billing period). Reductions take effect at the next renewal."
+      },
+      {
+        "q": "Can I upgrade or downgrade plans?",
+        "a": "Yes. Upgrades apply immediately (prorated). Downgrades take effect at the next billing cycle."
+      },
+      {
+        "q": "What happens if I cancel?",
+        "a": "Your account remains active until the end of your billing period. You’ll have 30 days to export your data before deletion."
+      },
+      {
+        "q": "Who owns our data and can we export it?",
+        "a": "You own your data. You can export during your subscription and for 30 days after cancellation."
+      },
+      {
+        "q": "Do you guarantee uptime?",
+        "a": "Yes. BioMaint targets 99.9% monthly uptime."
+      },
+      {
+        "q": "What support is included?",
+        "a": "All plans include email and in-app support."
+      },
+      {
+        "q": "Are there usage or storage limits?",
+        "a": "Fair-use applies to API and exports to ensure service quality. File uploads are limited to 100 MB per file."
+      },
+      {
+        "q": "How do you keep data private and secure?",
+        "a": "We use multi-factor authentication, IP protection, 256-bit SSL encryption, intrusion detection, minimum password strength algorithms, CAPTCHA protection on failed login attempts, daily multi-server/geography backups, and more. In short: we take security very seriously."
+      },
+      {
+        "q": "Can we self-host BioMaint?",
+        "a": "No. BioMaint is only available as a secure cloud-hosted platform. Self-hosting or on-premises deployment is not available at this time."
+      }
+    ]
+  }
+}

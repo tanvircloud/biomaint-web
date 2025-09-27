@@ -154,20 +154,16 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUHVibGljXEluZGV4LnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/dev/app/WebApp/Pages/Public/LegalPolicy.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUHVibGljXExlZ2FsUG9saWN5LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/dev/app/WebApp/Pages/Public/Pricing.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUHVibGljXFByaWNpbmcucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/dev/app/WebApp/Pages/Public/Privacy.razor]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUHVibGljXFByaXZhY3kucmF6b3I=
-build_metadata.AdditionalFiles.CssScope = 
-
 [C:/dev/app/WebApp/Pages/Public/Product.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUHVibGljXFByb2R1Y3QucmF6b3I=
-build_metadata.AdditionalFiles.CssScope = 
-
-[C:/dev/app/WebApp/Pages/Public/Terms.razor]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUHVibGljXFRlcm1zLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/dev/app/WebApp/Shared/AppLayout.razor]

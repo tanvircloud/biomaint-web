@@ -24,6 +24,11 @@ public sealed class ContentService
     private readonly ConcurrentDictionary<string, (byte[] Bytes, DateTimeOffset Exp)> _cache = new();
     private static readonly TimeSpan DefaultTtl = TimeSpan.FromSeconds(30);
 
+    // NEW: Environment-driven effective TTL (keeps original DefaultTtl intact).
+    private static readonly TimeSpan EffectiveTtl = TimeSpan.FromSeconds(
+        int.TryParse(Environment.GetEnvironmentVariable("CONTENT_TTL_SECONDS"), out var s) && s > 0 ? s : 30
+    );
+
     public ContentService(HttpClient http) => _http = http;
 
     // ------------------------------------------------------------
@@ -54,6 +59,14 @@ public sealed class ContentService
 
                     // Put into short TTL cache
                     _cache[key] = (bytes, DateTimeOffset.UtcNow.Add(DefaultTtl));
+
+                    // NEW: Respect environment TTL without removing the original line.
+                    //      If EffectiveTtl differs, we overwrite the same cache slot.
+                    if (EffectiveTtl != DefaultTtl)
+                    {
+                        _cache[key] = (bytes, DateTimeOffset.UtcNow.Add(EffectiveTtl));
+                    }
+
                     return bytes;
                 }
                 catch
@@ -91,6 +104,34 @@ public sealed class ContentService
         catch { /* ignore */ }
     }
 
+    /// <summary>
+    /// NEW: Warm pricing JSONs in parallel (pricing, pricing-faq), without changing the original method.
+    /// </summary>
+    public async Task PreloadPricingAsync(CancellationToken ct = default)
+    {
+        try
+        {
+            var t4 = FetchBytesAsync("pricing", ct);
+            var t5 = FetchBytesAsync("pricing-faq", ct);
+            await Task.WhenAll(t4, t5);
+        }
+        catch { /* ignore */ }
+    }
+
+    /// <summary>
+    /// NEW: Convenience wrapper that warms both critical and pricing content.
+    /// </summary>
+    public async Task PreloadAllCriticalAsync(CancellationToken ct = default)
+    {
+        try
+        {
+            // Keep original behavior and then extend with pricing warmers.
+            await PreloadCriticalAsync(ct);
+            await PreloadPricingAsync(ct);
+        }
+        catch { /* ignore */ }
+    }
+
     // ------------------------------------------------------------
     // Base loader (kept) now backed by the coalesced fetch
     // ------------------------------------------------------------
@@ -115,6 +156,13 @@ public sealed class ContentService
             return default;
         }
     }
+
+    // NEW: Small typed helpers (optional ergonomics; still use universal loader under the hood).
+    public Task<T?> GetPricingAsync<T>(CancellationToken ct = default)
+        => GetAsync<T>("pricing", ct);
+
+    public Task<T?> GetPricingFaqAsync<T>(CancellationToken ct = default)
+        => GetAsync<T>("pricing-faq", ct);
 
     // ------------------------------------------------------------
     // Case-insensitive JSON helpers

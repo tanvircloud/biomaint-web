@@ -2,6 +2,7 @@
 @layout PublicLayout
 @using System.Text.Json
 @using System.Text.Json.Serialization
+@using Microsoft.AspNetCore.Components
 @using Microsoft.AspNetCore.Components.Authorization
 @inject WebApp.Services.ContentService Content
 @inject IJSRuntime JS
@@ -176,6 +177,49 @@
           { <li>@item</li> }
         </ul>
       </div>
+
+      <!-- FAQ (same page) -->
+      <div class="mt-5">
+        <h2 class="mb-3">Frequently Asked Questions</h2>
+
+        @if (_faqs is null)
+        {
+          <div class="alert alert-info" role="status">Loading FAQs…</div>
+        }
+        else if (_faqs.Count == 0)
+        {
+          <div class="text-muted">No FAQs available.</div>
+        }
+        else
+        {
+          <!-- Reuse gradient border shell from matrix for a cohesive look -->
+          <div class="matrix-wrap p-3 p-md-4">
+            <div class="accordion accordion-flush" id="faqAccordion">
+              @foreach (var (item, idx) in _faqs.Select((f, i) => (f, i)))
+              {
+                var hid = $"faq-h-{idx}";
+                var cid = $"faq-c-{idx}";
+                <div class="accordion-item">
+                  <h2 class="accordion-header" id="@hid">
+                    <button class="accordion-button collapsed d-flex gap-2" type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#@cid"
+                            aria-expanded="false" aria-controls="@cid">
+                      <i class="bi bi-question-circle-fill"></i>
+                      <span class="fw-semibold">@item.Q</span>
+                    </button>
+                  </h2>
+                  <div id="@cid" class="accordion-collapse collapse" aria-labelledby="@hid" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body">
+                      @((MarkupString)ExpandFaqAnswer(item.A))
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
     }
   </div>
 </section>
@@ -206,6 +250,11 @@
     [JsonPropertyName("users")] public JsonElement Users { get; set; }
   }
 
+  // ===== FAQ models (match pricing-faq.json wrapper) =====
+  private record FaqItem(string Q, string A);
+  private record PricingFaq(List<FaqItem> Faqs);
+  private record PricingFaqWrapper(PricingFaq PricingFaq);
+
   // Row spec for dynamic matrix (Display may differ from JSON key)
   private readonly record struct RowSpec(string Display, string Key);
   private RowSpec[] _featureRows = Array.Empty<RowSpec>();
@@ -224,6 +273,9 @@
   // Data
   PricingRoot _data = new();
   Plan? _starter, _pro, _ent;
+
+  // FAQs
+  List<FaqItem>? _faqs;
 
   protected override async Task OnInitializedAsync()
   {
@@ -264,6 +316,14 @@
     };
 
     _featureRows = ordered.Select(k => new RowSpec(DisplayLabel(k), k)).ToArray();
+
+    // Load FAQs (same page)
+    try
+    {
+      var faqWrap = await Content.GetAsync<PricingFaqWrapper>("pricing-faq");
+      _faqs = faqWrap?.PricingFaq?.Faqs ?? new();
+    }
+    catch { _faqs = new(); }
   }
 
   protected override async Task OnParametersSetAsync()
@@ -314,6 +374,38 @@
   private readonly record struct LocaleInfo(string tz, string lang);
 
   // ===== Helpers =====
+
+  // Expand FAQ answers with dynamic pricing pulled from pricing.json.
+  // - Replaces "{pricing}" token with bolded, currency-aware plan prices.
+  // - Mirrors the card logic (adds "/mo" only when not custom).
+  string ExpandFaqAnswer(string answer)
+  {
+    if (string.IsNullOrWhiteSpace(answer) || !answer.Contains("{pricing}", StringComparison.OrdinalIgnoreCase))
+      return answer ?? string.Empty;
+
+    string LineFor(Plan? p)
+    {
+      if (p is null) return "";
+      var priceText = HasCustomPrice(p) ? (p.Price["custom"].GetString() ?? "Price on Request") : FormatPrice(p);
+      var unit = HasCustomPrice(p) ? "" : "<span class=\"plan-unit\">/mo</span>";
+      return $"<strong>{p.Name}:</strong> <strong>{priceText}</strong>{unit}";
+    }
+
+    var parts = new List<string>();
+    parts.Add(LineFor(_starter));
+    parts.Add(LineFor(_pro));
+    parts.Add(LineFor(_ent));
+
+    var joined = string.Join(" · ", parts.Where(s => !string.IsNullOrWhiteSpace(s)));
+    // Replace token with our formatted, bolded content
+    return System.Text.RegularExpressions.Regex.Replace(
+      answer,
+      "{pricing}",
+      joined,
+      System.Text.RegularExpressions.RegexOptions.IgnoreCase
+    );
+  }
+
   static bool HasCustomPrice(Plan? p)
     => p?.Price is not null
        && p.Price.TryGetValue("custom", out var label)
