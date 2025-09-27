@@ -3,7 +3,7 @@
 @using System.Text.Json
 @using System.Net.Http.Json
 @using Microsoft.JSInterop
-@inject HttpClient Http
+@inject WebApp.Services.ApiClient Api
 @inject NavigationManager Nav
 @inject IConfiguration Config
 @inject IJSRuntime JS
@@ -370,16 +370,21 @@
           captchaToken = captchaToken
         };
 
-        var resp = await Http.PostAsJsonAsync(LoginUrl, payload, cts.Token);
-
-        if (resp.StatusCode == System.Net.HttpStatusCode.Forbidden)
+        try
         {
+          // Use ApiClient (typed)
+          var result = await Api.PostAsync<object, LoginResponse>(LoginUrl, payload, cts.Token);
+          ShowToast("Welcome back!", "success");
+          Nav.NavigateTo(_returnUrl, forceLoad: true);
+        }
+        catch (ApiHttpException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Forbidden)
+        {
+          // MFA required
           RequireMfa = true;
           ShowToast("Multi-factor authentication required. Check your authenticator app.", "info");
           return;
         }
-
-        if (!resp.IsSuccessStatusCode)
+        catch (ApiHttpException)
         {
           ShowToast("We couldn’t log you in. Check your details and try again.", "danger");
           try { await JS.InvokeVoidAsync("BioMaintLogin.reset"); } catch { }
@@ -387,23 +392,22 @@
           CaptchaStatus = "Awaiting verification";
           return;
         }
-
-        ShowToast("Welcome back!", "success");
-        Nav.NavigateTo(_returnUrl, forceLoad: true);
       }
       else
       {
         var payload = new { email = Email, code = MfaCode };
-        var resp = await Http.PostAsJsonAsync(VerifyMfaUrl, payload, cts.Token);
 
-        if (!resp.IsSuccessStatusCode)
+        try
+        {
+          var result = await Api.PostAsync<object, LoginResponse>(VerifyMfaUrl, payload, cts.Token);
+          ShowToast("Verified!", "success");
+          Nav.NavigateTo(_returnUrl, forceLoad: true);
+        }
+        catch (ApiHttpException)
         {
           ShowToast("Invalid MFA code.", "danger");
           return;
         }
-
-        ShowToast("Verified!", "success");
-        Nav.NavigateTo(_returnUrl, forceLoad: true);
       }
     }
     catch (TaskCanceledException)
