@@ -1,5 +1,6 @@
-@using System.Text.Json
+@using System.Text.Json 
 @using System.Linq
+@using System.Text.RegularExpressions
 @using WebApp.Models
 @inject WebApp.Services.ContentService Content
 
@@ -15,45 +16,88 @@
     string AppHeading = "Get the app";
     string FollowHeading = "Follow";
 
-    // Map any incoming legal label to the correct /legal route while keeping the label
+    // ---- Minimal models to read legal.json (ids + titles) ----
+    private sealed class LegalRoot { public List<PolicyLink> Policies { get; set; } = new(); }
+    private sealed class PolicyLink { public string Id { get; set; } = ""; public string Title { get; set; } = ""; }
+
+    // Helper: always coerce href to non-null string for tuples
+    static string HrefOrDefault(string? href) => string.IsNullOrWhiteSpace(href) ? "#" : href;
+
+    // Normalize any incoming legal label to canonical route
     static string NormalizeLegalHref(string label, string currentHref)
     {
         var l = (label ?? "").ToLowerInvariant();
-        if (l.Contains("privacy") || l.Contains("cookie"))
-            return "/legal/privacy";
-        if (l.Contains("security"))
-            return "/legal/security";
-        if (l.Contains("terms") || l.Contains("service"))
-            return "/legal/terms";
+        if (l.Contains("privacy") || l.Contains("cookie")) return "/legal/privacy";
+        if (l.Contains("security")) return "/legal/security";
+        if (l.Contains("terms") || l.Contains("service")) return "/legal/terms";
         return currentHref;
     }
 
-    // Make sure we always surface the 3 standard links even if JSON is missing them
+    // Extract policy id from /legal/{id}
+    static bool TryGetPolicyIdFromHref(string? href, out string id)
+    {
+        id = "";
+        if (string.IsNullOrWhiteSpace(href)) return false;
+        var m = Regex.Match(href.Trim(), @"^/legal/(?<id>[a-z0-9\-]+)", RegexOptions.IgnoreCase);
+        if (!m.Success) return false;
+        id = m.Groups["id"].Value.ToLowerInvariant();
+        return true;
+    }
+
+    // Guess id from label for older/custom links
+    static string? GuessPolicyIdFromLabel(string? label)
+    {
+        var l = (label ?? "").ToLowerInvariant();
+        if (l.Contains("privacy") || l.Contains("cookie")) return "privacy";
+        if (l.Contains("security")) return "security";
+        if (l.Contains("terms") || l.Contains("service")) return "terms";
+        return null;
+    }
+
+    // Ensure standard links exist even if JSON omitted them
     void EnsureStandardLegalLinks()
     {
-        bool hasPrivacy  = Legal.Any(x => x.Label.Contains("Privacy", System.StringComparison.OrdinalIgnoreCase)
-                                       || x.Label.Contains("Cookie", System.StringComparison.OrdinalIgnoreCase));
-        bool hasSecurity = Legal.Any(x => x.Label.Contains("Security", System.StringComparison.OrdinalIgnoreCase));
-        bool hasTerms    = Legal.Any(x => x.Label.Contains("Terms", System.StringComparison.OrdinalIgnoreCase));
+        bool hasPrivacy  = Legal.Any(x => x.Label.Contains("Privacy", StringComparison.OrdinalIgnoreCase)
+                                       || x.Label.Contains("Cookie", StringComparison.OrdinalIgnoreCase))
+                        || Legal.Any(x => TryGetPolicyIdFromHref(x.Href, out var id) && id == "privacy");
+        bool hasSecurity = Legal.Any(x => x.Label.Contains("Security", StringComparison.OrdinalIgnoreCase))
+                        || Legal.Any(x => TryGetPolicyIdFromHref(x.Href, out var id) && id == "security");
+        bool hasTerms    = Legal.Any(x => x.Label.Contains("Terms", StringComparison.OrdinalIgnoreCase))
+                        || Legal.Any(x => TryGetPolicyIdFromHref(x.Href, out var id) && id == "terms");
 
         if (!hasPrivacy)  Legal.Add(("Privacy & Cookie Policy", "/legal/privacy"));
         if (!hasSecurity) Legal.Add(("Security Policy", "/legal/security"));
         if (!hasTerms)    Legal.Add(("Terms of Service", "/legal/terms"));
     }
 
+    // Sort: Terms, Privacy, Security, then other policies A–Z, then non-policy links
+    static int OrderIndex(string label, string href)
+    {
+        if (TryGetPolicyIdFromHref(href, out var id))
+        {
+            return id switch
+            {
+                "terms"    => 0,
+                "privacy"  => 1,
+                "security" => 2,
+                _          => 3
+            };
+        }
+        return 9;
+    }
+
     protected override async Task OnInitializedAsync()
     {
-        // Copyright (string) from FooterModel
+        // Copyright text from FooterModel
         FooterBasic = await Content.GetFooterModelAsync();
 
-        // Extended footer content from JSON (nav.footer)
+        // Extended footer content (nav.footer)
         using var doc = await Content.GetAsync<JsonDocument>("nav.footer");
         if (doc is null) return;
         var root = doc.RootElement;
 
         static string? Str(JsonElement obj, string prop)
             => obj.TryGetProperty(prop, out var v) && v.ValueKind == JsonValueKind.String ? v.GetString() : null;
-
         static IEnumerable<JsonElement> Arr(JsonElement obj, string prop)
             => obj.TryGetProperty(prop, out var v) && v.ValueKind == JsonValueKind.Array ? v.EnumerateArray() : Enumerable.Empty<JsonElement>();
 
@@ -64,10 +108,10 @@
             FollowHeading = Str(band, "follow") ?? FollowHeading;
 
             foreach (var b in Arr(band, "badges"))
-                Badges.Add((Str(b, "alt") ?? "", Str(b, "src") ?? "#", Str(b, "href") ?? "#"));
+                Badges.Add((Str(b, "alt") ?? "", Str(b, "src") ?? "#", HrefOrDefault(Str(b, "href"))));
 
             foreach (var s in Arr(band, "social"))
-                Social.Add((Str(s, "icon") ?? "bi-link", Str(s, "aria") ?? "", Str(s, "href") ?? "#"));
+                Social.Add((Str(s, "icon") ?? "bi-link", Str(s, "aria") ?? "", HrefOrDefault(Str(s, "href"))));
         }
 
         // Footer columns
@@ -76,42 +120,86 @@
             var title = Str(col, "title") ?? "";
             var links = new List<(string, string)>();
             foreach (var l in Arr(col, "links"))
-                links.Add((Str(l, "label") ?? "", Str(l, "href") ?? "#"));
-
+                links.Add((Str(l, "label") ?? "", HrefOrDefault(Str(l, "href"))));
             Columns.Add((title, links));
         }
 
-        // Legal links (bottom row) — exactly as webApp.html (normalize to /legal/* when applicable)
+        // Bottom-row legal links (normalize to /legal/* when applicable)
         foreach (var l in Arr(root, "legal"))
         {
             var label = Str(l, "label") ?? "";
-            var href  = NormalizeLegalHref(label, Str(l, "href") ?? "#");
+            var href  = NormalizeLegalHref(label, HrefOrDefault(Str(l, "href")));
             Legal.Add((label, href));
         }
 
-        // Fallback: if no explicit "legal" array, try to filter last column
+        // Fallback: if no explicit "legal" array, filter last column
         if (Legal.Count == 0 && Columns.Count > 0)
         {
             var last = Columns.Last();
             var filtered = last.Links
-                .Where(x => x.Label.Contains("Privacy", System.StringComparison.OrdinalIgnoreCase)
-                         || x.Label.Contains("Cookie",  System.StringComparison.OrdinalIgnoreCase)
-                         || x.Label.Contains("Terms",   System.StringComparison.OrdinalIgnoreCase)
-                         || x.Label.Contains("Security",System.StringComparison.OrdinalIgnoreCase))
+                .Where(x => x.Label.Contains("Privacy", StringComparison.OrdinalIgnoreCase)
+                         || x.Label.Contains("Cookie",  StringComparison.OrdinalIgnoreCase)
+                         || x.Label.Contains("Terms",   StringComparison.OrdinalIgnoreCase)
+                         || x.Label.Contains("Security",StringComparison.OrdinalIgnoreCase))
                 .Select(x => (x.Label, NormalizeLegalHref(x.Label, x.Href)))
                 .ToList();
 
-            if (filtered.Count > 0)
-                Legal = filtered;
+            if (filtered.Count > 0) Legal = filtered;
         }
 
-        // Ensure standard links exist (Privacy, Security, Terms)
-        EnsureStandardLegalLinks();
+        // === Merge canonical policies from legal.json and de-dupe by policy id ===
+        var legalRoot = await Content.GetAsync<LegalRoot>("legal") ?? new();
+        var canonical = legalRoot.Policies?
+            .Where(p => !string.IsNullOrWhiteSpace(p.Id) && !string.IsNullOrWhiteSpace(p.Title))
+            .ToDictionary(p => p.Id.ToLowerInvariant(), p => p.Title);
 
-        // De-duplicate by label (keep the first occurrence)
-        Legal = Legal
-            .GroupBy(x => x.Label, System.StringComparer.OrdinalIgnoreCase)
-            .Select(g => g.First())
+        // Build working list tagging items with policy id when we can
+        var working = new List<(string Label, string Href, string? PolicyId)>();
+
+        // 1) Existing bottom-row items
+        foreach (var (label, href) in Legal)
+        {
+            var pid = TryGetPolicyIdFromHref(href, out var id) ? id : GuessPolicyIdFromLabel(label);
+            working.Add((label, pid is not null ? $"/legal/{pid}" : HrefOrDefault(href), pid));
+        }
+
+        // 2) Canonical policy entries (preferred titles)
+        if (canonical is not null)
+        {
+            foreach (var kv in canonical)
+                working.Add((kv.Value, $"/legal/{kv.Key}", kv.Key));
+        }
+
+        // Safety net: ensure core links exist and participate in dedupe
+        Legal.Clear();
+        EnsureStandardLegalLinks();
+        foreach (var (label, href) in Legal)
+        {
+            var pid = TryGetPolicyIdFromHref(href, out var id) ? id : GuessPolicyIdFromLabel(label);
+            working.Add((label, pid is not null ? $"/legal/{pid}" : HrefOrDefault(href), pid));
+        }
+
+        // De-dupe: one entry per policy id (prefer canonical title). Non-policy links deduped by label+href.
+        var byKey = new Dictionary<string, (string Label, string Href)>(StringComparer.OrdinalIgnoreCase);
+        foreach (var item in working)
+        {
+            if (!string.IsNullOrWhiteSpace(item.PolicyId))
+            {
+                var pid = item.PolicyId!;
+                var title = (canonical != null && canonical.TryGetValue(pid, out var t)) ? t : item.Label;
+                byKey[$"policy:{pid}"] = (title, $"/legal/{pid}");
+            }
+            else
+            {
+                var key = $"link:{item.Label.Trim()}|{item.Href.Trim().ToLowerInvariant()}";
+                if (!byKey.ContainsKey(key)) byKey[key] = (item.Label, item.Href);
+            }
+        }
+
+        // Final sorted list
+        Legal = byKey.Values
+            .OrderBy(x => OrderIndex(x.Label, x.Href))
+            .ThenBy(x => x.Label, StringComparer.OrdinalIgnoreCase)
             .ToList();
     }
 }
